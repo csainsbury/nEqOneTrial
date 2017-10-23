@@ -1,0 +1,8 @@
+## logfile
+
+generateDrugData_forRNN.R
+# generates the drug data for the RNN (for embedding). generates the combinations according to time bins defined in sequence. 1/30 for a 5y runin gives 2 month bins.
+
+# other datasets are in ./sourceData - from prior 2/3 param RNNs
+
+# plan to embed the drug data and then keras merge with other data
