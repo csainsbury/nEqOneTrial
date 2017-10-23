@@ -74,6 +74,13 @@ hba1c_export <- zeroFinalBins(hba1c_export, numberOfBinsMakingUpTestPeriod)
 sbp_export <- zeroFinalBins(sbp_export, numberOfBinsMakingUpTestPeriod)
 bmi_export <- zeroFinalBins(bmi_export, numberOfBinsMakingUpTestPeriod)
 
+## write out files for python
+write.table(drug_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/drugExport.csv", sep=",", row.names = FALSE)
+write.table(hba1c_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/hba1c_export.csv", sep=",", row.names = FALSE)
+write.table(sbp_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/sbp_export.csv", sep=",", row.names = FALSE)
+write.table(bmi_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/bmi_export.csv", sep=",", row.names = FALSE)
+
+
 
 
 
