@@ -1,5 +1,12 @@
 ## logfile
 
+sequence:
+1 run generateDrugData_forRNN.R
+2 run generateInputFilesForRNN_hb_bp_bmi2_originalFile.R if runin not 5y and timebins not 2 months
+3 place output data in ./sourceData
+4 generate data for python3 with generate_drugPlusOtherParams_forPython.R
+
+
 generateDrugData_forRNN.R
 # generates the drug data for the RNN (for embedding). generates the combinations according to time bins defined in sequence. 1/30 for a 5y runin gives 2 month bins.
 

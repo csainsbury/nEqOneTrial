@@ -62,7 +62,7 @@ findSimilarDrugs <- function(inputFrame) {
   
   inputFrame$DrugNameNew[grep("Victoza", inputFrame$DrugName, ignore.case = TRUE)] <- "Liraglutide"
   inputFrame$DrugNameNew[grep("Liraglutide", inputFrame$DrugName, ignore.case = TRUE)] <- "Liraglutide"
-
+  
   inputFrame$DrugNameNew[grep("Pioglitazone", inputFrame$DrugName, ignore.case = TRUE)] <- "Pioglitazone"
   
   inputFrame$DrugNameNew[grep("Sitagliptin", inputFrame$DrugName, ignore.case = TRUE)] <- "Sitagliptin"
@@ -137,7 +137,7 @@ interestSetDT = interestSetDT[prescription_dateplustime1 > (0)]
 startRuninPeriod <- '2008-01-01'
 endRuninPeriod   <- '2013-01-01'
 interestSetDT <- interestSetDT[prescription_dateplustime1 > returnUnixDateTime(startRuninPeriod) &
-                         prescription_dateplustime1 < returnUnixDateTime(endRuninPeriod)]
+                                 prescription_dateplustime1 < returnUnixDateTime(endRuninPeriod)]
 
 interestSetDF <- data.frame(interestSetDT)
 
