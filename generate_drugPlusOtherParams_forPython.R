@@ -26,6 +26,11 @@ hba1cData <- addIdentifier(hba1cData, 'hba1c_')
 sbpData <- addIdentifier(sbpData, 'sbp_')
 bmiData <- addIdentifier(bmiData, 'bmi_')
 
+twoParamMerge <- merge(hba1cData, sbpData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
+threeParamMerge <- merge(twoParamMerge, bmiData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
+
+x = merge(drugCombinationData_numerical, hba1cData, )
+
 
 # generate merged dataset
 
