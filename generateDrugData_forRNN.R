@@ -153,6 +153,10 @@ topNdrugs$Var1 <- gsub(" ", "", topNdrugs$Var1, fixed = TRUE)
 topNdrugs$Var1 <- gsub("/", "", topNdrugs$Var1, fixed = TRUE)
 topNdrugs$Var1 <- gsub("-", "", topNdrugs$Var1, fixed = TRUE)
 
+# plot zipf's law
+# topNdrugs$rank = c(nrow(topNdrugs):1)
+# plot(log(topNdrugs$rank), log(topNdrugs$Freq))
+
 # merge top drugs back with interestSet to generate working data frame:
 interestSet_topN_merge <- merge(interestSetDF, topNdrugs, by.x="DrugName", by.y="Var1")
 
