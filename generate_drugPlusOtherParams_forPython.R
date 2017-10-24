@@ -55,6 +55,10 @@ hba1cDataOutcome <- paramDifference(hba1cData, numberOfBinsMakingUpTestPeriod)
 sbpDataOutcome <- paramDifference(sbpData, numberOfBinsMakingUpTestPeriod)
 bmiDataOutcome <- paramDifference(bmiData, numberOfBinsMakingUpTestPeriod)
 
+# merge parameter outcomes back into fourParamMerge
+hba1cDataOutcome_export <- merge(fourParamMerge, hba1cDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
+hba1cDataOutcome_export <- hba1cDataOutcome_export$difference
+
 # export the files for python import:
 # needs to be improved. done manually for now
 drug_export <- fourParamMerge[, 2:31]
@@ -79,6 +83,10 @@ write.table(drug_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfe
 write.table(hba1c_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/hba1c_export.csv", sep=",", row.names = FALSE)
 write.table(sbp_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/sbp_export.csv", sep=",", row.names = FALSE)
 write.table(bmi_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/bmi_export.csv", sep=",", row.names = FALSE)
+
+# write out outcomes for python
+write.table(hba1cDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/hba1c_outcome.csv", sep=",", row.names = FALSE)
+
 
 
 
