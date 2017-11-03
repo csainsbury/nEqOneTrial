@@ -78,7 +78,7 @@ RNN setup and run
 # a = input the drug dataset (2-dimensional: IDs, timesteps)
 a = Input(shape = (30, ), dtype='int16')
 # embed drug layer
-emb = Embedding(2000,1000)(a)
+emb = Embedding(1200,1200)(a)
 
 # b = input the numerical data (3-dimensional: IDs, timesteps, dimensions(n parameters))
 b = Input(shape = (30, 3))
@@ -89,9 +89,11 @@ merged = merge([emb, b], mode='concat')
 
 # build the RNN model
 rnn = Sequential([
-    LSTM(return_sequences=True, input_shape = (30, 1003), units=128),
+    LSTM(return_sequences=True, input_shape = (30, 1203), units=128),
     Dropout(0.5),
-    LSTM(8),
+    LSTM(32, return_sequences = True),
+    Dropout(0.5),
+    LSTM(4),
     Dropout(0.5),
     Dense(1, activation='sigmoid'),
 ])(merged)
@@ -101,8 +103,8 @@ M = Model(input=[a,b], output=[rnn])
 M.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 ## fit and evaluate
-M.fit([X_train_set4, X_train_set1_to_3], y_train, batch_size = 128, epochs = 4)
-score = M.evaluate([X_test_set4, X_test_set1_to_3], y_test, batch_size=128)
+M.fit([X_train_set4, X_train_set1_to_3], y_train, batch_size = 64, epochs = 8)
+score = M.evaluate([X_test_set4, X_test_set1_to_3], y_test, batch_size=64)
 
 y_pred_asNumber = M.predict([X_test_set4, X_test_set1_to_3])
 from sklearn.metrics import roc_auc_score
@@ -124,7 +126,3 @@ plt.savefig('roc_mortality.png')
 auc = np.trapz(tpr, fpr)
 
 print(auc)
-
-
-
-M.evaluate([testA, testB], testY)
