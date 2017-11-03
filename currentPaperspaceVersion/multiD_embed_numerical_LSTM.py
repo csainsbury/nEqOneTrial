@@ -1,20 +1,15 @@
 
-from keras.layers import Input, Embedding, Reshape, merge, Dropout, Dense, LSTM
+from keras.layers import Input, Embedding, Reshape, merge, Dropout, Dense, LSTM, core, Activation
+from keras.layers import TimeDistributed, Flatten
+
 from keras.engine import Model
 from keras.models import Sequential
 
 import numpy as np
+import pandas as pd
 
-om keras.models import Sequential
-from keras.layers import LSTM, core, Activation, Dense
-from keras.layers import TimeDistributed, Flatten, Dropout
-import numpy as np
 from sklearn.preprocessing import StandardScaler
 sc = StandardScaler()
-
-
-import pandas as pd
-import numpy as np
 
 '''
 data prep
@@ -52,16 +47,8 @@ y = dataset_y.values
 y = (y < (-10))
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
-X = np.dstack([set1, set2, set3, set4])
+X = np.dstack([set1_transformed, set2_transformed, set3_transformed, set4])
 y = y
-
-# X[:, :, 0] - hba1c data # X[:, :, 1] - sbp data # X[:, :, 2] - bmi data
-
-print('X shape: ',X.shape)
-print('{} samples, {} time steps, {} observations at each time step, per sample\n'.format(*X.shape))
-
-print('y shape: ',y.shape)
-print('{} samples, {} time steps, boolean outcome per observation\n'.format(*y.shape))
 
 # split
 from sklearn.model_selection import train_test_split
@@ -91,7 +78,7 @@ RNN setup and run
 # a = input the drug dataset (2-dimensional: IDs, timesteps)
 a = Input(shape = (30, ), dtype='int16')
 # embed drug layer
-emb = Embedding(2000,20)(a)
+emb = Embedding(2000,1000)(a)
 
 # b = input the numerical data (3-dimensional: IDs, timesteps, dimensions(n parameters))
 b = Input(shape = (30, 3))
@@ -102,7 +89,7 @@ merged = merge([emb, b], mode='concat')
 
 # build the RNN model
 rnn = Sequential([
-    LSTM(return_sequences=True, input_shape = (30, 23), units=128),
+    LSTM(return_sequences=True, input_shape = (30, 1003), units=128),
     Dropout(0.5),
     LSTM(8),
     Dropout(0.5),
@@ -113,39 +100,30 @@ M = Model(input=[a,b], output=[rnn])
 
 M.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 
-testA = X_train_set4
-# testA = np.random.randint(0, 1100, (1000,30))
-
-testB = X_train_set1_to_3
-# testB = np.random.random((1000, 30, 3))
-
-testY = y_train
-# testY = np.random.randint(0, 10, (1000,1))
-# testY = (testY < (5))
-
-M.fit([testA, testB], testY, batch_size = 128, epochs = 8)
+## fit and evaluate
+M.fit([X_train_set4, X_train_set1_to_3], y_train, batch_size = 128, epochs = 4)
 score = M.evaluate([X_test_set4, X_test_set1_to_3], y_test, batch_size=128)
 
- y_pred_asNumber = M.predict([X_test_set4, X_test_set1_to_3])
- from sklearn.metrics import roc_auc_score
- roc_auc_score(y_test, y_pred_asNumber)
+y_pred_asNumber = M.predict([X_test_set4, X_test_set1_to_3])
+from sklearn.metrics import roc_auc_score
+roc_auc_score(y_test, y_pred_asNumber)
 
- # plot ROC
- from sklearn import metrics
- import matplotlib.pyplot as plt
+# plot ROC
+from sklearn import metrics
+import matplotlib.pyplot as plt
 
- fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_asNumber)
+fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_asNumber)
 
- fpr = fpr # false_positive_rate
- tpr = tpr # true_positive_rate
+fpr = fpr # false_positive_rate
+tpr = tpr # true_positive_rate
 
- # This is the ROC curve
- plt.plot(fpr,tpr)
- # plt.show()
- plt.savefig('roc_mortality.png')
- auc = np.trapz(tpr, fpr)
+# This is the ROC curve
+plt.plot(fpr,tpr)
+# plt.show()
+plt.savefig('roc_mortality.png')
+auc = np.trapz(tpr, fpr)
 
- print(auc)
+print(auc)
 
 
 
