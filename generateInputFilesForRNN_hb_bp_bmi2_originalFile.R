@@ -88,11 +88,25 @@ boxplot(sbp_data$sbp_cv ~ cut(hba1c_data$hba1c_cv, breaks = 100))
 
 # generate age as a time-series metric
 interpolatedTS_mortality_age <- as.data.frame(matrix(nrow = nrow(interpolatedTS_mortality), ncol = (length(sequence) - 1)))
+interpolatedTS_mortality_age$V1 <- interpolatedTS_mortality$age_at_startOfFollowUp
+followupTimeInterval <- returnUnixDateTime(endRuninPeriod)- returnUnixDateTime(startRuninPeriod)
+stepIncrement <- followupTimeInterval / (length(sequence) - 1)
+
+# propagate age forward throught the runin period
+for (j in seq(2, ncol(interpolatedTS_mortality_age), 1)) {
+  if(j == 2) {
+    interpolatedTS_mortality_age[, j] = interpolatedTS_mortality_age[, 1] + (stepIncrement / (60*60*24*365.25))
+  }
+  if(j > 2) {
+    interpolatedTS_mortality_age[, j] = interpolatedTS_mortality_age[, (j-1)] + (stepIncrement / (60*60*24*365.25))
+  }
+}
 
 
-write.table(hba1c_data, file = "~/R/_workingDirectory/bagOfDrugs/3d_input/hba1c_data_5y_2008-13_T2.csv", sep=",", row.names = FALSE)
-write.table(interpolatedTS_mortality_sbp, file = "~/R/_workingDirectory/bagOfDrugs/3d_input/sbp_data_5y_2008-13_T2.csv", sep=",", row.names = FALSE)
-write.table(interpolatedTS_mortality_bmi, file = "~/R/_workingDirectory/bagOfDrugs/3d_input/bmi_data_5y_2008-13_T2.csv", sep=",", row.names = FALSE)
+write.table(hba1c_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/hba1c_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
+write.table(sbp_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/sbp_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
+write.table(bmi_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/bmi_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
+write.table(interpolatedTS_mortality_age, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/age_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
 
 
 # mean = apply(interpolatedTS_forAnalysis, 1, mean)
