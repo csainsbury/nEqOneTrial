@@ -32,8 +32,8 @@ deathData$unix_diagnosisDate <- returnUnixDateTime(deathData$DateOfDiagnosisDiab
 deathDataDT <- data.table(deathData)
 
 # set runin period of interest
-startRuninPeriod <- '2008-01-01'
-endRuninPeriod   <- '2013-01-01'
+startRuninPeriod <- '2009-01-01'
+endRuninPeriod   <- '2014-01-01'
 
 sequence <- seq(0, 1 , (1/30))
 
@@ -85,6 +85,9 @@ bmi_data <- summaryStats(interpolatedTS_mortality_bmi, 'bmi_')
 # interesting crossplotting
 boxplot(bmi_data$bmi_cv ~ cut(hba1c_data$hba1c_cv, breaks = 100))
 boxplot(sbp_data$sbp_cv ~ cut(hba1c_data$hba1c_cv, breaks = 100))
+
+# generate age as a time-series metric
+interpolatedTS_mortality_age <- as.data.frame(matrix(nrow = nrow(interpolatedTS_mortality), ncol = (length(sequence) - 1)))
 
 
 write.table(hba1c_data, file = "~/R/_workingDirectory/bagOfDrugs/3d_input/hba1c_data_5y_2008-13_T2.csv", sep=",", row.names = FALSE)
