@@ -328,7 +328,10 @@ runInStartDate = "2010-01-01"
 runInEndDate = "2015-01-01"
 binLength_months = 2
 
+generateImputedTimeSeriesData(cleanHbA1cData, deathData, runInStartDate, runInEndDate, binLength_months, "hba1c", 8)
 generateImputedTimeSeriesData(cleanSBPData, deathData, runInStartDate, runInEndDate, binLength_months, "SBP", 8)
+generateImputedTimeSeriesData(cleanBMIData, deathData, runInStartDate, runInEndDate, binLength_months, "BMI", 8)
+
 
 
 
