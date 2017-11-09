@@ -134,8 +134,8 @@ interestSetDT = interestSetDT[prescription_dateplustime1 < 1574121600]
 interestSetDT = interestSetDT[prescription_dateplustime1 > (0)]
 
 # set runin period of interest
-startRuninPeriod <- '2008-01-01'
-endRuninPeriod   <- '2013-01-01'
+startRuninPeriod <- '2010-01-01'
+endRuninPeriod   <- '2015-01-01'
 interestSetDT <- interestSetDT[prescription_dateplustime1 > returnUnixDateTime(startRuninPeriod) &
                                  prescription_dateplustime1 < returnUnixDateTime(endRuninPeriod)]
 
@@ -268,7 +268,10 @@ drugsetDT <- transform(drugsetDT,id=as.numeric(factor(LinkId)))
     lookup <- unique(lookup)
     lookup <- data.table(lookup)
     
+    # write out lookup table
+    write.table(lookup, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/lookupTable_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
     
+
     # vectorised lookup table use
     numericalDrugsFrame <- as.data.frame(matrix(0, nrow = nrow(drugWordFrame_drugNames), ncol = ncol(drugWordFrame_drugNames)))
     
@@ -283,13 +286,13 @@ drugsetDT <- transform(drugsetDT,id=as.numeric(factor(LinkId)))
     
 
     # write out sequence for analysis
-    write.table(numericalDrugsFrame, file = "~/R/_workingDirectory/nEqOneTrial/numericalDrugsFrame_5y_2mBins.csv", sep=",", row.names = FALSE)
+    write.table(numericalDrugsFrame, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_30bins_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
     # write out sequence for analysis
-    write.table(drugWordFrame_mortality, file = "~/R/_workingDirectory/nEqOneTrial/drugWordFrame_mortality_5y_2mBins.csv", sep=",", row.names = FALSE)
+    write.table(drugWordFrame_mortality, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/drugWordFrame_mortality_30bins_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
     
     numericalDrugsFrame_withID <- data.frame(numericalDrugsFrame, drugWordFrame_forAnalysis$LinkId)
     # write out sequence for analysis
-    write.table(numericalDrugsFrame_withID, file = "~/R/_workingDirectory/nEqOneTrial/numericalDrugsFrame_withID_5y_2mBins.csv", sep=",", row.names = FALSE)
+    write.table(numericalDrugsFrame_withID, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_withID_30bins_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
     
     
     
