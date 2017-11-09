@@ -2,11 +2,16 @@ library(data.table)
 
 sequence <- seq(0, 1 , (1/30)) # inherit from generateDrugData_forRNN.R
 
+# set runin period of interest # inherited from other files
+startRuninPeriod <- '2008-01-01'
+endRuninPeriod   <- '2013-01-01'
+
 drugCombinationData_numerical <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_withID_2008-13.csv", header = T)
 
-hba1cData <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/hba1c_data_5y_2008-13_T2.csv", header = T)
-sbpData <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/sbp_data_5y_2008-13_T2.csv", header = T)
-bmiData <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/bmi_data_5y_2008-13_T2.csv", header = T)
+hba1cData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/hba1c_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), header = T)
+sbpData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/sbp_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), header = T)
+bmiData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/bmi_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), header = T)
+ageData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/age_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), header = T)
 
 # add identifiers to data frames:
 addIdentifier <- function(inputFrame, nameVariable) {
@@ -25,6 +30,7 @@ addIdentifier <- function(inputFrame, nameVariable) {
 hba1cData <- addIdentifier(hba1cData, 'hba1c_')
 sbpData <- addIdentifier(sbpData, 'sbp_')
 bmiData <- addIdentifier(bmiData, 'bmi_')
+ageData <- addIdentifier(ageData, 'age_')
 
 # generate merged dataset
 twoParamMerge <- merge(hba1cData, sbpData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')

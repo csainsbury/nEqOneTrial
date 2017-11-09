@@ -32,8 +32,8 @@ deathData$unix_diagnosisDate <- returnUnixDateTime(deathData$DateOfDiagnosisDiab
 deathDataDT <- data.table(deathData)
 
 # set runin period of interest
-startRuninPeriod <- '2009-01-01'
-endRuninPeriod   <- '2014-01-01'
+startRuninPeriod <- '2008-01-01'
+endRuninPeriod   <- '2013-01-01'
 
 sequence <- seq(0, 1 , (1/30))
 
@@ -119,9 +119,8 @@ write.table(interpolatedTS_mortality_age, file = paste("~/R/_workingDirectory/nE
 
 
 
-
 y_vector <- interpolatedTS_mortality$isDead
-y_vector_isType1 <- ifelse(interpolatedTS_mortality$DiabetesMellitusType_Mapped == 'Type 1 Diabetes Mellitus', 1, 0)
+y_vector_isType1 <- ifelse(interpolatedTS_mortality$DiabetesMellitusType_Mapped == "Type 1 Diabetes Mellitus", 1, 0)
 y_vector_deadAt_1_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (1 * 365.25 * 24 * 60 * 60)), 1, 0)
 y_vector_deadAt_2_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (2 * 365.25 * 24 * 60 * 60)), 1, 0)
 y_vector_deadAt_3_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (3 * 365.25 * 24 * 60 * 60)), 1, 0)
@@ -143,5 +142,4 @@ write.table(y_vector_deadAt_1_year, file = "~/R/_workingDirectory/bagOfDrugs/3d_
 # write.table(y_vector_deadAt_3_year, file = "~/R/_workingDirectory/bagOfDrugs/local_py/hba1c_3y_mortality_y_10y_30increments_2004-2014_locf.csv", sep = ",", row.names = FALSE)
 # #
 # write.table(y_vector_deadAt_4_year, file = "~/R/_workingDirectory/bagOfDrugs/local_py/hba1c_4y_mortality_y_10y_30increments_2004-2014_locf.csv", sep = ",", row.names = FALSE)
-
 
