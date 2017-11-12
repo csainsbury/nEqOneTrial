@@ -298,8 +298,8 @@ drugsetDT <- transform(drugsetDT,id=as.numeric(factor(LinkId)))
     
     
     
-    # write out dep variable (y)
-    write.table(y_vector, file = "./3y_mortality_y_for_numericalDrugsFrame_15y_6mBins_chained_y.csv", sep = ",", row.names = FALSE)
+    # # write out dep variable (y)
+    # write.table(y_vector, file = "./3y_mortality_y_for_numericalDrugsFrame_15y_6mBins_chained_y.csv", sep = ",", row.names = FALSE)
     
     
     

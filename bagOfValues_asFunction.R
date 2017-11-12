@@ -320,7 +320,7 @@ deathData <- read.csv("~/R/GlCoSy/SDsource/diagnosisDateDeathDate.txt", sep=",")
 
 cleanHbA1cData <- read.csv("~/R/GlCoSy/SD_workingSource/hba1cDTclean.csv", sep=",", header = TRUE, row.names = NULL)
 cleanSBPData <- read.csv("~/R/GlCoSy/SD_workingSource/SBPsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
-cleanBMIData <- read.csv("~/R/GlCoSy/SD_workingSource/SBPsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
+cleanBMIData <- read.csv("~/R/GlCoSy/SD_workingSource/BMIsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
 
 ##
 # set variables

@@ -8,18 +8,18 @@ returnUnixDateTime<-function(date) {
 }
 
 # read data files
-hba1c_interpolated <- read.csv("~/R/_workingDirectory/bagOfDrugs/3D_input/interpolatedTS_hba1c_5y_30increments_2008-2013_locf.csv")
+hba1c_interpolated <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_hba1c_5y_30increments_2010-01-01_to_2015-01-01_locf.csv")
 hba1c_interpolated$median <- NULL
 
-sbp_interpolated <- read.csv("~/R/_workingDirectory/bagOfDrugs/3D_input/interpolatedTS_sbp_5y_30increments_2008-2013_locf.csv")
+sbp_interpolated <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_SBP_5y_30increments_2010-01-01_to_2015-01-01_locf.csv")
 sbp_interpolated$median <- NULL
 
-bmi_interpolated <- read.csv("~/R/_workingDirectory/bagOfDrugs/3D_input/interpolatedTS_bmi_5y_30increments_2008-2013_locf.csv")
+bmi_interpolated <- read.csv("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_BMI_5y_30increments_2010-01-01_to_2015-01-01_locf.csv")
 bmi_interpolated$median <- NULL
 
 # merge files to give single frame
-hb_sbp_merge <- merge(hba1c_interpolated, sbp_interpolated, by.x = 'LinkId', by.y = 'LinkId')
-hb_sbp_bmi_merge <- merge(hb_sbp_merge, bmi_interpolated, by.x = 'LinkId', by.y = 'LinkId')
+hb_sbp_merge <- merge(hba1c_interpolated, sbp_interpolated, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
+hb_sbp_bmi_merge <- merge(hb_sbp_merge, bmi_interpolated, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
 
 ## bring in other data to code
 # load and process mortality data
@@ -32,13 +32,13 @@ deathData$unix_diagnosisDate <- returnUnixDateTime(deathData$DateOfDiagnosisDiab
 deathDataDT <- data.table(deathData)
 
 # set runin period of interest
-startRuninPeriod <- '2008-01-01'
-endRuninPeriod   <- '2013-01-01'
+startRuninPeriod <- '2010-01-01'
+endRuninPeriod   <- '2015-01-01'
 
 sequence <- seq(0, 1 , (1/30))
 
 # mortality outcome at 2017-01-01
-interpolatedTS_mortality <- merge(hb_sbp_bmi_merge, deathData, by.x = "LinkId", by.y= "LinkId")
+interpolatedTS_mortality <- merge(hb_sbp_bmi_merge, deathData, by.x = "interpolatedTS_mortality.LinkId", by.y= "LinkId")
 
 # type 2 diabetes only
 interpolatedTS_mortality <- subset(interpolatedTS_mortality, DiabetesMellitusType_Mapped == 'Type 2 Diabetes Mellitus')
@@ -59,10 +59,11 @@ interpolatedTS_mortality$age_at_startOfFollowUp <- (returnUnixDateTime(startRuni
 # remove those diagnosed after the beginning of the runin period ie all in analysis have had DM throughout followup period
 # drugWordFrame_mortality <- subset(drugWordFrame_mortality, unix_diagnosisDate <= returnUnixDateTime(startRuninPeriod) )
 
-interpolatedTS_mortality_hba1c <- interpolatedTS_mortality[, 2:(length(sequence))]
-interpolatedTS_mortality_sbp   <- interpolatedTS_mortality[, (length(sequence) + 1):((length(sequence) - 1) + length(sequence))]
-interpolatedTS_mortality_bmi   <- interpolatedTS_mortality[, ((length(sequence)) + length(sequence)):
-                                                             (((length(sequence)) + length(sequence)) + (length(sequence) - 2))]
+seqL = (length(sequence))
+
+interpolatedTS_mortality_hba1c <- interpolatedTS_mortality[, 2:seqL]
+interpolatedTS_mortality_sbp   <- interpolatedTS_mortality[, (seqL + 5):((seqL + 5) + (seqL - 2))]
+interpolatedTS_mortality_bmi   <- interpolatedTS_mortality[, ((seqL * 2) + 8): ((seqL * 3) + 6)]
 
 summaryStats <- function(inputFrame, nameVariable) {
   
