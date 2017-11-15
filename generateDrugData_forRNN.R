@@ -106,6 +106,165 @@ findSimilarDrugs <- function(inputFrame) {
   return(outputFrame)
 }
 
+simplifyDrugs <- function(inputFrame) {
+  
+  # inputFrame <- interestSet
+  # inputFrame <- inputFrame[1:100000,]
+  
+  inputFrame$DrugName.original <- inputFrame$DrugName
+  inputFrame$DrugNameNew <- inputFrame$DrugName
+  
+  inputFrame <- subset(inputFrame, DrugNameNew != "Disposable")
+  
+  inputFrame$DrugNameNew[grep("Glucose", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
+  inputFrame$DrugNameNew[grep("Glucogel", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
+  inputFrame$DrugNameNew[grep("Dextrogel", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
+  inputFrame$DrugNameNew[grep("DEXTROSE", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
+  
+  
+  inputFrame$DrugNameNew[grep("Glucagen Hypokit", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucagon_"
+  inputFrame$DrugNameNew[grep("Glucagon", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucagon_"
+  
+  inputFrame$DrugNameNew[grep("Optium Plus", inputFrame$DrugName, ignore.case = TRUE)] <- "Test Strips"
+  
+  inputFrame$DrugNameNew[grep("Acarbose", inputFrame$DrugName, ignore.case = TRUE)] <- "Acarbose_"
+  inputFrame$DrugNameNew[grep("Glucobay", inputFrame$DrugName, ignore.case = TRUE)] <- "Acarbose_"
+  
+  inputFrame$DrugNameNew[grep("REPAGLINIDE", inputFrame$DrugName, ignore.case = TRUE)] <- "meglitinide_"
+  inputFrame$DrugNameNew[grep("Repaglinide", inputFrame$DrugName, ignore.case = TRUE)] <- "meglitinide_"
+  inputFrame$DrugNameNew[grep("Nateglinide", inputFrame$DrugName, ignore.case = TRUE)] <- "meglitinide_"
+  
+  inputFrame$DrugNameNew[grep("Metformin", inputFrame$DrugName, ignore.case = TRUE)] <- "Metformin_"
+  inputFrame$DrugNameNew[grep("Glucophage", inputFrame$DrugName, ignore.case = TRUE)] <- "Metformin_"
+  
+  inputFrame$DrugNameNew[grep("Gliclazide", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("Glipizide", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("Glibenese", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("Amaryl", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("Glimepiride", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("GLIMEPIRIDE", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("Glibenclamide", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+  inputFrame$DrugNameNew[grep("Daonil", inputFrame$DrugName, ignore.case = TRUE)] <- "SU_"
+
+  inputFrame$DrugNameNew[grep("Rosiglitazone", inputFrame$DrugName, ignore.case = TRUE)] <- "TZD_"
+  inputFrame$DrugNameNew[grep("Pioglitazone", inputFrame$DrugName, ignore.case = TRUE)] <- "TZD_"
+  inputFrame$DrugNameNew[grep("Actos", inputFrame$DrugName, ignore.case = TRUE)] <- "TZD_"
+  
+  inputFrame$DrugNameNew[grep("Linagliptin", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  inputFrame$DrugNameNew[grep("Sitagliptin", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  inputFrame$DrugNameNew[grep("Vildagliptin", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  inputFrame$DrugNameNew[grep("Galvus", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  inputFrame$DrugNameNew[grep("Saxagliptin", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  inputFrame$DrugNameNew[grep("SAXAGLIPTIN", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  inputFrame$DrugNameNew[grep("Dulaglutide", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4_"
+  
+  
+  inputFrame$DrugNameNew[grep("Liraglutide", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("Exenatide", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("Byetta", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("BYETTA", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("Bydureon", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("Lixisenatide", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("Lyxumia", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  inputFrame$DrugNameNew[grep("Dulaglutide", inputFrame$DrugName, ignore.case = TRUE)] <- "GLP1_"
+  
+  
+  inputFrame$DrugNameNew[grep("Dapagliflozin", inputFrame$DrugName, ignore.case = TRUE)] <- "SGLT2_"
+  inputFrame$DrugNameNew[grep("Canagliflozin", inputFrame$DrugName, ignore.case = TRUE)] <- "SGLT2_"
+  inputFrame$DrugNameNew[grep("Empagliflozin", inputFrame$DrugName, ignore.case = TRUE)] <- "SGLT2_"
+  
+  # combinations
+  inputFrame$DrugNameNew[grep("Avandamet", inputFrame$DrugName, ignore.case = TRUE)] <- "MetforminTZD_"
+  inputFrame$DrugNameNew[grep("Competact", inputFrame$DrugName, ignore.case = TRUE)] <- "MetforminTZD_"
+  inputFrame$DrugNameNew[grep("Eucreas", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4Metformin_"
+  inputFrame$DrugNameNew[grep("EUCREAS", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4Metformin_"
+  inputFrame$DrugNameNew[grep("Janumet", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4Metformin_"
+  inputFrame$DrugNameNew[grep("JANUMET", inputFrame$DrugName, ignore.case = TRUE)] <- "DPP4Metformin_"
+  
+  
+  # SSRI
+  inputFrame$DrugNameNew[grep("Duloxetine", inputFrame$DrugName, ignore.case = TRUE)] <- "SSRI_"
+  inputFrame$DrugNameNew[grep("DULOXETINE", inputFrame$DrugName, ignore.case = TRUE)] <- "SSRI_"
+  
+  
+  # bd mix insulins
+  inputFrame$DrugNameNew[grep("Humalog Mix", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBDmixInsulin_"
+  inputFrame$DrugNameNew[grep("Novomix", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBDmixInsulin_"
+  inputFrame$DrugNameNew[grep("Mixtard", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  inputFrame$DrugNameNew[grep("Humulin M4", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  
+  inputFrame$DrugNameNew[grep("Humulin M3", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  inputFrame$DrugNameNew[grep("Humulin M2", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  inputFrame$DrugNameNew[grep("Humulin M1", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  
+  inputFrame$DrugNameNew[grep("HUMULIN M2", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  inputFrame$DrugNameNew[grep("HUMULIN M1", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBDmixInsulin_"
+  
+  inputFrame$DrugNameNew[grep("Humalog Mix", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBDmixInsulin_"
+  
+  # basal insulins
+  inputFrame$DrugNameNew[grep("Insulin Glargine", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  inputFrame$DrugNameNew[grep("degludec", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  inputFrame$DrugNameNew[grep("Degludec", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  inputFrame$DrugNameNew[grep("Tresiba", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  inputFrame$DrugNameNew[grep("Insulin Detemir", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  inputFrame$DrugNameNew[grep("Insulatard", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBasalInsulin_"
+  inputFrame$DrugNameNew[grep("ULTRATARD", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBasalInsulin_"  
+  inputFrame$DrugNameNew[grep("MONOTARD", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBasalInsulin_"
+  inputFrame$DrugNameNew[grep("Humulin I", inputFrame$DrugName, ignore.case = TRUE)] <- "humanBasalInsulin_"
+  
+  # prandial insulins
+  inputFrame$DrugNameNew[grep("Actrapid", inputFrame$DrugName, ignore.case = TRUE)] <- "humanPrandialInsulin_"
+  inputFrame$DrugNameNew[grep("Humalog", inputFrame$DrugName, ignore.case = TRUE)] <- "analoguePrandialInsulin_"
+  inputFrame$DrugNameNew[grep("Insulin Lispro", inputFrame$DrugName, ignore.case = TRUE)] <- "analoguePrandialInsulin_"
+  
+  inputFrame$DrugNameNew[grep("Novorapid", inputFrame$DrugName, ignore.case = TRUE)] <- "analoguePrandialInsulin_"
+  inputFrame$DrugNameNew[grep("Apidra", inputFrame$DrugName, ignore.case = TRUE)] <- "analoguePrandialInsulin_"
+  inputFrame$DrugNameNew[grep("Humulin S", inputFrame$DrugName, ignore.case = TRUE)] <- "humanPrandialInsulin_"
+  
+  # animal insulins
+  inputFrame$DrugNameNew[grep("Bovine", inputFrame$DrugName, ignore.case = TRUE)] <- "bovineInsulin_"
+  inputFrame$DrugNameNew[grep("BOVINE", inputFrame$DrugName, ignore.case = TRUE)] <- "bovineInsulin_"
+  inputFrame$DrugNameNew[grep("Porcine", inputFrame$DrugName, ignore.case = TRUE)] <- "porcineInsulin_"
+  
+  
+  inputFrame$DrugNameNew[grep("lancet", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  inputFrame$DrugNameNew[grep("Lancet", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  inputFrame$DrugNameNew[grep("LANCET", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  inputFrame$DrugNameNew[grep("Accu", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  inputFrame$DrugNameNew[grep("ACCU", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  inputFrame$DrugNameNew[grep("accu", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  
+  
+  inputFrame$DrugNameNew[grep("pen", inputFrame$DrugName, ignore.case = TRUE)] <- "pen_"
+  inputFrame$DrugNameNew[grep("Insulin Syringe", inputFrame$DrugName, ignore.case = TRUE)] <- "pen_"
+  
+    
+  inputFrame$DrugNameNew[grep("strip", inputFrame$DrugName, ignore.case = TRUE)] <- "TestStrips_"
+  
+  inputFrame$DrugNameNew[grep("Bd-Microfine", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
+  inputFrame$DrugNameNew[grep("BD Micro-Fine", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
+  inputFrame$DrugNameNew[grep("Needle", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
+  inputFrame$DrugNameNew[grep("need", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
+  inputFrame$DrugNameNew[grep("ndle", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
+  
+  
+  inputFrame$DrugNameNew[grep("Bd Safe-Clip", inputFrame$DrugName, ignore.case = TRUE)] <- "ClippingDevice_"
+  
+  
+  x <- as.data.frame(table(inputFrame$DrugNameNew))
+  x = x[order(x$Freq), ]
+  
+  outputFrame <- inputFrame
+  
+  outputFrame$DrugName.original <- NULL
+  outputFrame$DrugName <- outputFrame$DrugNameNew
+  outputFrame$DrugNameNew <- NULL
+  
+  return(outputFrame)
+}
+
+
 # generate node and link files
 drugDataSet <- read.csv("~/R/GlCoSy/SDsource/Export_all_diabetes_drugs.txt",header=TRUE,row.names=NULL)
 
@@ -126,6 +285,8 @@ drugDataSet$LinkId <- as.numeric(levels(drugDataSet$LinkId))[drugDataSet$LinkId]
 # restrict to diabetes drugs
 interestSet <- subset(drugDataSet, substr(drugDataSet$BNFCode,1,3) == "6.1" | substr(drugDataSet$BNFCode,1,4) == "0601")
 interestSet <- findSimilarDrugs(interestSet)
+interestSet <- simplifyDrugs(interestSet)
+
 interestSetDT <- data.table(interestSet)
 interestSetDT$prescription_dateplustime1 <- returnUnixDateTime(interestSetDT$PrescriptionDateTime)
 
@@ -143,7 +304,7 @@ interestSetDF <- data.frame(interestSetDT)
 
 # generate a top-100 etc list for merging back
 # meeds a bit of data cleaning - merging synonymous drugs etc
-n = 45
+n = 25
 topNdrugs_DrugNames <- as.data.frame(table(interestSetDF$DrugName))
 topNdrugs_DrugNames <- topNdrugs_DrugNames[order(topNdrugs_DrugNames$Freq), ]
 
@@ -269,7 +430,7 @@ drugsetDT <- transform(drugsetDT,id=as.numeric(factor(LinkId)))
     lookup <- data.table(lookup)
     
     # write out lookup table
-    write.table(lookup, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/lookupTable_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
+    write.table(lookup, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/lookupTable_", startRuninPeriod, "_to_", endRuninPeriod, "_simplifiedDrugs.csv", sep=""), sep=",", row.names = FALSE)
     
 
     # vectorised lookup table use
@@ -286,13 +447,13 @@ drugsetDT <- transform(drugsetDT,id=as.numeric(factor(LinkId)))
     
 
     # write out sequence for analysis
-    write.table(numericalDrugsFrame, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_30bins_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
+    write.table(numericalDrugsFrame, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_30bins_", startRuninPeriod, "_to_", endRuninPeriod, "_simplifiedDrugs.csv", sep=""), sep=",", row.names = FALSE)
     # write out sequence for analysis
-    write.table(drugWordFrame_mortality, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/drugWordFrame_mortality_30bins_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
+    write.table(drugWordFrame_mortality, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/drugWordFrame_mortality_30bins_", startRuninPeriod, "_to_", endRuninPeriod, "_simplifiedDrugs.csv", sep=""), sep=",", row.names = FALSE)
     
     numericalDrugsFrame_withID <- data.frame(numericalDrugsFrame, drugWordFrame_forAnalysis$LinkId)
     # write out sequence for analysis
-    write.table(numericalDrugsFrame_withID, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_withID_30bins_", startRuninPeriod, "_to_", endRuninPeriod, ".csv", sep=""), sep=",", row.names = FALSE)
+    write.table(numericalDrugsFrame_withID, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_withID_30bins_", startRuninPeriod, "_to_", endRuninPeriod, "_simplifiedDrugs.csv", sep=""), sep=",", row.names = FALSE)
     
     
     

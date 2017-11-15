@@ -30,7 +30,7 @@ sc_sbp = StandardScaler()
 set2_transformed = sc_sbp.fit_transform(set2[:, :30])
 set2_concat = np.concatenate((set2_transformed, set2[:, 30:36]), axis = 1)
 
-dataset_3 = pd.read_csv('./inputFiles/bmi_export.csv')
+dataset_3 = pd.read_csv('./inputFiles/age_export.csv')
 set3 = dataset_3.values
 
 sc_bmi = StandardScaler()
@@ -44,7 +44,7 @@ set4 = dataset_4.values
 # dataset_y = pd.read_csv('./boolean_y.csv')
 dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
 y = dataset_y.values
-y = (y < (-30))
+y = (y < (-10))
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
 X = np.dstack([set1_transformed, set2_transformed, set3_transformed, set4])

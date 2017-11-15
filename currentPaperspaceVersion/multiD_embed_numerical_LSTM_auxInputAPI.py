@@ -1,6 +1,6 @@
 
 from keras.layers import Input, Embedding, Reshape, merge, Dropout, Dense, LSTM, core, Activation
-from keras.layers import TimeDistributed, Flatten
+from keras.layers import TimeDistributed, Flatten, concatenate
 
 from keras.engine import Model
 from keras.models import Sequential
@@ -21,6 +21,7 @@ set1 = dataset_1.values
 
 sc_hba1c = StandardScaler()
 set1_transformed = sc_hba1c.fit_transform(set1[:, :30])
+hba1cSet = set1_transformed
 set1_concat = np.concatenate((set1_transformed, set1[:, 30:36]), axis = 1)
 
 dataset_2 = pd.read_csv('./inputFiles/sbp_export.csv')
@@ -28,6 +29,7 @@ set2 = dataset_2.values
 
 sc_sbp = StandardScaler()
 set2_transformed = sc_sbp.fit_transform(set2[:, :30])
+sbpSet = set2_transformed
 set2_concat = np.concatenate((set2_transformed, set2[:, 30:36]), axis = 1)
 
 dataset_3 = pd.read_csv('./inputFiles/bmi_export.csv')
@@ -35,58 +37,95 @@ set3 = dataset_3.values
 
 sc_bmi = StandardScaler()
 set3_transformed = sc_bmi.fit_transform(set3[:, :30])
+bmiSet = set3_transformed
 set3_concat = np.concatenate((set3_transformed, set3[:, 30:36]), axis = 1)
 
 # drug combination dataset. read in as numerical values - need to embed at later stage
 dataset_4 = pd.read_csv('./inputFiles/drugExport.csv')
 set4 = dataset_4.values
+drugSet = set4
+
+# auxilliary inputFiles
+dataset_5 = pd.read_csv('./inputFiles/age_export.csv')
+set5 = dataset_5.values
+
+sc_age = StandardScaler()
+set5_transformed = sc_age.fit_transform(set5[:, :30])
+ageSet = set5_transformed
 
 # dataset_y = pd.read_csv('./boolean_y.csv')
 dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
 y = dataset_y.values
-y = (y < (-30))
+y = (y < (-10))
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
-X = np.dstack([set1_transformed, set2_transformed, set3_transformed, set4])
+X = np.dstack([hba1cSet, sbpSet, bmiSet, ageSet, drugSet])
 y = y
 
 # split
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
 
-# generate test subgroups
+# generate train / test subgroups
 X_train_values = X_train[:, :30, :]
 X_test_values = X_test[:, :30, :]
 
-'''
-X_train_set1 = X_train[:, :30, 0]
-X_train_set2 = X_train[:, :30, 1]
-X_train_set3 = X_train[:, :30, 2]
-X_train_set4 = X_train[:, :30, 3]
-'''
+X_train_numericalTS = X_train[:, :30, 0:3]
+X_train_drugs = X_train[:, :30, 4]
+X_train_age = X_train[:, :30, 3]
 
-X_train_set1_to_3 = X_train[:, :30, 0:3]
-X_train_set4 = X_train[:, :30, 3]
+X_test_numericalTS = X_test[:, :30, 0:3]
+X_test_drugs = X_test[:, :30, 4]
+X_test_age = X_test[:, :30, 3]
 
-X_test_set1_to_3 = X_test[:, :30, 0:3]
-X_test_set4 = X_test[:, :30, 3]
 
 '''
 RNN setup and run
 '''
 
 # a = input the drug dataset (2-dimensional: IDs, timesteps)
-a = Input(shape = (30, ), dtype='int16')
+drug_set = Input(shape = (30, ), dtype='int32', name = 'drug_set')
 # embed drug layer
-emb = Embedding(1200,8)(a) # lower output dimensions seems better
+emb = Embedding(input_dim = 1200, output_dim = 8)(drug_set) # lower output dimensions seems better
 
-# b = input the numerical data (3-dimensional: IDs, timesteps, dimensions(n parameters))
-b = Input(shape = (30, 3))
+# numericTS_set = input the numerical data (3-dimensional: IDs, timesteps, dimensions(n parameters))
+numericTS_set = Input(shape = (30, 3), name = 'numericTS_set')
 
 # merge embedded and numerical data
-merged = merge([emb, b], mode='concat')
+# merged = keras.layers.concatenate([emb, numericTS_set])
+merged = merge([emb, numericTS_set], mode='concat')
+
+lstm_out = LSTM(return_sequences=False, input_shape = (30, 11), units=128)(merged)
+auxiliary_output = Dense(1, activation='sigmoid', name='aux_output')(lstm_out)
+
+auxiliary_input = Input(shape=(30,), name='aux_input')
+# x = merge([lstm_out, auxiliary_input], mode = 'concat')
+x = concatenate([lstm_out, auxiliary_input])
+
+x = Dense(64, activation='relu')(x)
+x = Dense(64, activation='relu')(x)
+x = Dense(64, activation='relu')(x)
+
+# And finally we add the main logistic regression layer
+main_output = Dense(1, activation='sigmoid', name='main_output')(x)
+
+model = Model(inputs=[drug_set, numericTS_set, auxiliary_input], outputs=[main_output, auxiliary_output])
+
+model.compile(optimizer='adam', loss='binary_crossentropy', loss_weights=[1., 0.4])
+
+model.fit([X_train_drugs, X_train_numericalTS, X_train_age], [y_train, y_train], epochs=4, batch_size=128)
 
 
+y_pred_asNumber = model.predict([X_test_drugs, X_test_numericalTS, X_test_age])
+from sklearn.metrics import roc_auc_score
+mainOutput = roc_auc_score(y_test, y_pred_asNumber[0])
+auxOutput = roc_auc_score(y_test, y_pred_asNumber[1])
+
+print(mainOutput)
+print(auxOutput)
+
+
+'''
 # build the RNN model
 rnn = Sequential([
     LSTM(return_sequences=True, input_shape = (30, 11), units=128),
@@ -110,11 +149,13 @@ y_pred_asNumber = M.predict([X_test_set4, X_test_set1_to_3])
 from sklearn.metrics import roc_auc_score
 roc_auc_score(y_test, y_pred_asNumber)
 
+'''
+
 # plot ROC
 from sklearn import metrics
 import matplotlib.pyplot as plt
 
-fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_asNumber)
+fpr, tpr, _ = metrics.roc_curve(y_test, y_pred_asNumber[0])
 
 fpr = fpr # false_positive_rate
 tpr = tpr # true_positive_rate
@@ -128,6 +169,6 @@ auc = np.trapz(tpr, fpr)
 
 print(auc)
 
-plt.hist(y_pred_asNumber, bins = 100)
+plt.hist(y_pred_asNumber[0], bins = 100)
 plt.savefig('y_pred_distribution')
 plt.clf()

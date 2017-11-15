@@ -3,6 +3,8 @@
 # function to output values
 # numericValueColumnIndex = the column that the numeric value of interest is in (hba1c, sbp etc)
 generateImputedTimeSeriesData <- function(inputFrame, input_deathData, startTime, endTime, input_binLengthMonths, label, numericValueColumnIndex) {
+  
+  # inputFrame = cleanBMIData; input_deathData = deathData; startTime = runInStartDate; endTime = runInEndDate, input_binLengthMonths = 2; label = 'BMI_test'; numericValueColumnIndex = 8
 
 library(data.table)
 library(imputeTS)
@@ -330,7 +332,7 @@ binLength_months = 2
 
 generateImputedTimeSeriesData(cleanHbA1cData, deathData, runInStartDate, runInEndDate, binLength_months, "hba1c", 8)
 generateImputedTimeSeriesData(cleanSBPData, deathData, runInStartDate, runInEndDate, binLength_months, "SBP", 8)
-generateImputedTimeSeriesData(cleanBMIData, deathData, runInStartDate, runInEndDate, binLength_months, "BMI", 8)
+generateImputedTimeSeriesData(cleanBMIData, deathData, runInStartDate, runInEndDate, binLength_months, "BMI_test", 6)
 
 
 

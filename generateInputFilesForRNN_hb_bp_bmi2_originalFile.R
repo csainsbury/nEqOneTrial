@@ -103,10 +103,12 @@ for (j in seq(2, ncol(interpolatedTS_mortality_age), 1)) {
   }
 }
 
+interpolatedTS_mortality_age$LinkId <- interpolatedTS_mortality$interpolatedTS_mortality.LinkId
 
-write.table(hba1c_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/hba1c_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
-write.table(sbp_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/sbp_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
-write.table(bmi_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/bmi_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
+
+# write.table(hba1c_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/hba1c_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
+# write.table(sbp_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/sbp_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
+# write.table(bmi_data, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/bmi_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
 write.table(interpolatedTS_mortality_age, file = paste("~/R/_workingDirectory/nEqOneTrial/sourceData/age_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), sep=",", row.names = FALSE)
 
 
@@ -118,28 +120,28 @@ write.table(interpolatedTS_mortality_age, file = paste("~/R/_workingDirectory/nE
 # values_plusID_forExport <- data.frame(interpolatedTS_forAnalysis, interpolatedTS_mortality$LinkId, interpolatedTS_mortality$unix_deathDate, interpolatedTS_mortality$age_at_startOfFollowUp, interpolatedTS_mortality$median, cv)
 # write.table(values_plusID_forExport, file = "~/R/_workingDirectory/bagOfDrugs/local_py/interpolatedTS_hba1c_10y_30increments_2004-2014_locf.csv", sep=",", row.names = FALSE)
 
-
-
-y_vector <- interpolatedTS_mortality$isDead
-y_vector_isType1 <- ifelse(interpolatedTS_mortality$DiabetesMellitusType_Mapped == "Type 1 Diabetes Mellitus", 1, 0)
-y_vector_deadAt_1_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (1 * 365.25 * 24 * 60 * 60)), 1, 0)
-y_vector_deadAt_2_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (2 * 365.25 * 24 * 60 * 60)), 1, 0)
-y_vector_deadAt_3_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (3 * 365.25 * 24 * 60 * 60)), 1, 0)
-y_vector_deadAt_4_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (4 * 365.25 * 24 * 60 * 60)), 1, 0)
-y_vector_deadAt_5_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (5 * 365.25 * 24 * 60 * 60)), 1, 0)
-
-# write out sequence for analysis
-# write.table(interpolatedTS_forAnalysis, file = "~/R/_workingDirectory/bagOfDrugs/local_py/hba1c_5y_30increments_2008-2013_locf_T1.csv", sep=",", row.names = FALSE)
-
-# write out sequence for analysis with LinkId
-# write.table(timesetWordFrame_mortality, file = "~/R/GlCoSy/MLsource/hba1c_5y_30increments_2008-2013_chained_y_rawWithId.csv", sep=",", row.names = FALSE)
-
-# write out dep variable (y)
-#write.table(y_vector, file = "~/R/GlCoSy/MLsource/hba1c_5y_mortality_y_10y_2002to2012_6mBins_10y_chained_y.csv", sep = ",", row.names = FALSE)
-#write.table(y_vector_isType1, file = "~/R/GlCoSy/MLsource/isType1_for_hb1ac_10y_2002to2012_6mBins_10y_chained_y.csv", sep = ",", row.names = FALSE)
-#
-write.table(y_vector_deadAt_1_year, file = "~/R/_workingDirectory/bagOfDrugs/3d_input/1y_mortality_5y_30bins_2008-13_T2.csv", sep = ",", row.names = FALSE)
-#write.table(y_vector_deadAt_2_year, file = "~/R/GlCoSy/MLsource/hba1c_2y_mortality_y_10y_2002to2012_6mBins_10y_chained_y.csv", sep = ",", row.names = FALSE)
+# 
+# 
+# y_vector <- interpolatedTS_mortality$isDead
+# y_vector_isType1 <- ifelse(interpolatedTS_mortality$DiabetesMellitusType_Mapped == "Type 1 Diabetes Mellitus", 1, 0)
+# y_vector_deadAt_1_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (1 * 365.25 * 24 * 60 * 60)), 1, 0)
+# y_vector_deadAt_2_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (2 * 365.25 * 24 * 60 * 60)), 1, 0)
+# y_vector_deadAt_3_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (3 * 365.25 * 24 * 60 * 60)), 1, 0)
+# y_vector_deadAt_4_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (4 * 365.25 * 24 * 60 * 60)), 1, 0)
+# y_vector_deadAt_5_year <- ifelse(interpolatedTS_mortality$isDead == 1 & interpolatedTS_mortality$unix_deathDate < (returnUnixDateTime(endRuninPeriod) + (5 * 365.25 * 24 * 60 * 60)), 1, 0)
+# 
+# # write out sequence for analysis
+# # write.table(interpolatedTS_forAnalysis, file = "~/R/_workingDirectory/bagOfDrugs/local_py/hba1c_5y_30increments_2008-2013_locf_T1.csv", sep=",", row.names = FALSE)
+# 
+# # write out sequence for analysis with LinkId
+# # write.table(timesetWordFrame_mortality, file = "~/R/GlCoSy/MLsource/hba1c_5y_30increments_2008-2013_chained_y_rawWithId.csv", sep=",", row.names = FALSE)
+# 
+# # write out dep variable (y)
+# #write.table(y_vector, file = "~/R/GlCoSy/MLsource/hba1c_5y_mortality_y_10y_2002to2012_6mBins_10y_chained_y.csv", sep = ",", row.names = FALSE)
+# #write.table(y_vector_isType1, file = "~/R/GlCoSy/MLsource/isType1_for_hb1ac_10y_2002to2012_6mBins_10y_chained_y.csv", sep = ",", row.names = FALSE)
+# #
+# write.table(y_vector_deadAt_1_year, file = "~/R/_workingDirectory/bagOfDrugs/3d_input/1y_mortality_5y_30bins_2008-13_T2.csv", sep = ",", row.names = FALSE)
+# #write.table(y_vector_deadAt_2_year, file = "~/R/GlCoSy/MLsource/hba1c_2y_mortality_y_10y_2002to2012_6mBins_10y_chained_y.csv", sep = ",", row.names = FALSE)
 # write.table(y_vector_deadAt_3_year, file = "~/R/_workingDirectory/bagOfDrugs/local_py/hba1c_3y_mortality_y_10y_30increments_2004-2014_locf.csv", sep = ",", row.names = FALSE)
 # #
 # write.table(y_vector_deadAt_4_year, file = "~/R/_workingDirectory/bagOfDrugs/local_py/hba1c_4y_mortality_y_10y_30increments_2004-2014_locf.csv", sep = ",", row.names = FALSE)
