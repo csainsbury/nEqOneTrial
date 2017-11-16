@@ -48,6 +48,7 @@ drugSet = set4
 # auxilliary inputFiles
 dataset_5 = pd.read_csv('./inputFiles/age_export.csv')
 set5 = dataset_5.values
+# set5 = set5.reshape(-1, 1)
 
 sc_age = StandardScaler()
 set5_transformed = sc_age.fit_transform(set5[:, :30])
@@ -72,11 +73,16 @@ X_test_values = X_test[:, :30, :]
 
 X_train_numericalTS = X_train[:, :30, 0:3]
 X_train_drugs = X_train[:, :30, 4]
-X_train_age = X_train[:, :30, 3]
+# X_train_age = X_train[:, :30, 3]
+X_train_age = X_train[:, 1, 3] # reduce age to a single value
+X_train_age = X_train_age.reshape(-1, 1) # reshape to a (nrow, 1) array
+
 
 X_test_numericalTS = X_test[:, :30, 0:3]
 X_test_drugs = X_test[:, :30, 4]
-X_test_age = X_test[:, :30, 3]
+# X_test_age = X_test[:, :30, 3]
+X_test_age = X_test[:, 1, 3]
+X_test_age = X_test_age.reshape(-1, 1)
 
 
 '''
@@ -86,7 +92,7 @@ RNN setup and run
 # a = input the drug dataset (2-dimensional: IDs, timesteps)
 drug_set = Input(shape = (30, ), dtype='int32', name = 'drug_set')
 # embed drug layer
-emb = Embedding(input_dim = 1200, output_dim = 8)(drug_set) # lower output dimensions seems better
+emb = Embedding(input_dim = 4000, output_dim = 8)(drug_set) # lower output dimensions seems better
 
 # numericTS_set = input the numerical data (3-dimensional: IDs, timesteps, dimensions(n parameters))
 numericTS_set = Input(shape = (30, 3), name = 'numericTS_set')
@@ -98,7 +104,7 @@ merged = merge([emb, numericTS_set], mode='concat')
 lstm_out = LSTM(return_sequences=False, input_shape = (30, 11), units=128)(merged)
 auxiliary_output = Dense(1, activation='sigmoid', name='aux_output')(lstm_out)
 
-auxiliary_input = Input(shape=(30,), name='aux_input')
+auxiliary_input = Input(shape=(1,), name='aux_input')
 # x = merge([lstm_out, auxiliary_input], mode = 'concat')
 x = concatenate([lstm_out, auxiliary_input])
 
@@ -123,6 +129,25 @@ auxOutput = roc_auc_score(y_test, y_pred_asNumber[1])
 
 print(mainOutput)
 print(auxOutput)
+
+# sandbox test
+MFalone_drugs = X_test_drugs[45, ]
+MFalone_drugs = MFalone_drugs.reshape(1, -1)
+
+# add SU for last year: MFalone_drugs[0,25:31] = 3076
+# add BDmix for last year: MFalone_drugs[0,25:31] = 2117
+# add SGLT2 for last year: MFalone_drugs[0,25:31] = 3065
+# add basalIns + SU for last year: MFalone_drugs[0,25:31] = 2854
+# MF analogue basal ins MFalone_drugs[0,25:31] = 911
+# nil  MFalone_drugs[0,25:31] = 3111
+
+MFalone_numeric = np.dstack([X_test_numericalTS[45, :, 0], X_test_numericalTS[45, :, 2], X_test_numericalTS[45, :, 2]])
+
+MFalone_age = X_test_age[45, ]
+
+y_pred_asNumber = model.predict([MFalone_drugs, MFalone_numeric, MFalone_age])
+y_pred_asNumber
+
 
 
 '''
