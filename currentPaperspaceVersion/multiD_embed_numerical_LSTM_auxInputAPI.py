@@ -57,7 +57,7 @@ ageSet = set5_transformed
 # dataset_y = pd.read_csv('./boolean_y.csv')
 dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
 y = dataset_y.values
-y = (y < (-10))
+y = (y < (-20))
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
 X = np.dstack([hba1cSet, sbpSet, bmiSet, ageSet, drugSet])
@@ -130,8 +130,12 @@ auxOutput = roc_auc_score(y_test, y_pred_asNumber[1])
 print(mainOutput)
 print(auxOutput)
 
+# write out X_test_drugs to send back to R for decoding/recoding
+np.savetxt('./pythonOutput/X_test_drugs.csv', X_test_drugs, fmt='%.18e', delimiter=',')
+
 # sandbox test
-MFalone_drugs = X_test_drugs[45, ]
+rowN = 21
+MFalone_drugs = X_test_drugs[rowN, ]
 MFalone_drugs = MFalone_drugs.reshape(1, -1)
 
 # add SU for last year: MFalone_drugs[0,25:31] = 3076
@@ -141,12 +145,13 @@ MFalone_drugs = MFalone_drugs.reshape(1, -1)
 # MF analogue basal ins MFalone_drugs[0,25:31] = 911
 # nil  MFalone_drugs[0,25:31] = 3111
 
-MFalone_numeric = np.dstack([X_test_numericalTS[45, :, 0], X_test_numericalTS[45, :, 2], X_test_numericalTS[45, :, 2]])
+MFalone_numeric = np.dstack([X_test_numericalTS[rowN, :, 0], X_test_numericalTS[rowN, :, 2], X_test_numericalTS[rowN, :, 2]])
 
-MFalone_age = X_test_age[45, ]
+MFalone_age = X_test_age[rowN, ]
 
 y_pred_asNumber = model.predict([MFalone_drugs, MFalone_numeric, MFalone_age])
 y_pred_asNumber
+
 
 
 
