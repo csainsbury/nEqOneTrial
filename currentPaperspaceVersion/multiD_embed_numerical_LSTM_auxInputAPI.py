@@ -57,7 +57,7 @@ ageSet = set5_transformed
 # dataset_y = pd.read_csv('./boolean_y.csv')
 dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
 y = dataset_y.values
-y = (y < (-20))
+y = (y < (-10))
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
 X = np.dstack([hba1cSet, sbpSet, bmiSet, ageSet, drugSet])
@@ -132,6 +132,15 @@ print(auxOutput)
 
 # write out X_test_drugs to send back to R for decoding/recoding
 np.savetxt('./pythonOutput/X_test_drugs.csv', X_test_drugs, fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/X_test_numericalTS_hba1c.csv', X_test_numericalTS[:, :, 0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/X_test_numericalTS_sbp.csv', X_test_numericalTS[:, :, 1], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/X_test_numericalTS_age.csv', X_test_numericalTS[:, :, 2], fmt='%.18e', delimiter=',')
+
+np.savetxt('./pythonOutput/X_test_age.csv', X_test_age, fmt='%.18e', delimiter=',')
+
+np.savetxt('./pythonOutput/y_pred_asNumber.csv', y_pred_asNumber, fmt='%.18e', delimiter=',')
+
+
 
 # sandbox test
 rowN = 21
@@ -149,8 +158,8 @@ MFalone_numeric = np.dstack([X_test_numericalTS[rowN, :, 0], X_test_numericalTS[
 
 MFalone_age = X_test_age[rowN, ]
 
-y_pred_asNumber = model.predict([MFalone_drugs, MFalone_numeric, MFalone_age])
-y_pred_asNumber
+sandbox_y_pred_asNumber = model.predict([MFalone_drugs, MFalone_numeric, MFalone_age])
+sandbox_y_pred_asNumber
 
 
 
