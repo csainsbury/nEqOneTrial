@@ -55,7 +55,7 @@ set5_transformed = sc_age.fit_transform(set5[:, :30])
 ageSet = set5_transformed
 
 # dataset_y = pd.read_csv('./boolean_y.csv')
-dataset_y = pd.read_csv('./outcomeFiles/sbp_outcome.csv')
+dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
 y = dataset_y.values
 y = (y < (-10))
 
@@ -117,9 +117,9 @@ main_output = Dense(1, activation='sigmoid', name='main_output')(x)
 
 model = Model(inputs=[drug_set, numericTS_set, auxiliary_input], outputs=[main_output, auxiliary_output])
 
-model.compile(optimizer='adam', loss='binary_crossentropy', loss_weights=[1., 0.5])
+model.compile(optimizer='adam', loss='binary_crossentropy', loss_weights=[0.3, 0.4])
 
-model.fit([X_train_drugs, X_train_numericalTS, X_train_age], [y_train, y_train], epochs=6, batch_size=128)
+model.fit([X_train_drugs, X_train_numericalTS, X_train_age], [y_train, y_train], epochs=4, batch_size=128)
 
 
 y_pred_asNumber = model.predict([X_test_drugs, X_test_numericalTS, X_test_age])
@@ -133,49 +133,49 @@ print(auxOutput)
 # write out y_pred_asNumber files for plotting
 # original
 # np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_original.csv', y_pred_asNumber[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_original.csv', y_pred_asNumber[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_original.csv', y_pred_asNumber[0], fmt='%.18e', delimiter=',')
 
 # nil therapy for last year
 X_test_drugs_nil = X_test_drugs
 X_test_drugs_nil[:, 24:30] = 3111
 y_pred_asNumber_nil = model.predict([X_test_drugs_nil, X_test_numericalTS, X_test_age])
 # np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_nil.csv', y_pred_asNumber_nil[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_nil.csv', y_pred_asNumber_nil[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_nil.csv', y_pred_asNumber_nil[0], fmt='%.18e', delimiter=',')
 
 # MF only therapy for last year
 X_test_drugs_MF = X_test_drugs
 X_test_drugs_MF[:, 24:30] = 3023
 y_pred_asNumber_MF = model.predict([X_test_drugs_MF, X_test_numericalTS, X_test_age])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF.csv', y_pred_asNumber_MF[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_MF.csv', y_pred_asNumber_MF[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF.csv', y_pred_asNumber_MF[0], fmt='%.18e', delimiter=',')
 
 # MF and SU only therapy for last year
 X_test_drugs_MF_SU = X_test_drugs
 X_test_drugs_MF_SU[:, 24:30] = 3076
 y_pred_asNumber_MF_SU = model.predict([X_test_drugs_MF_SU, X_test_numericalTS, X_test_age])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SU.csv', y_pred_asNumber_MF_SU[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_MF_SU.csv', y_pred_asNumber_MF_SU[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SU.csv', y_pred_asNumber_MF_SU[0], fmt='%.18e', delimiter=',')
 
-# MF and SU only therapy for last year
+# MF and basal Insulin only therapy for last year
 X_test_drugs_MF_bIns = X_test_drugs
 X_test_drugs_MF_bIns[:, 24:30] = 2835
 y_pred_asNumber_MF_bIns = model.predict([X_test_drugs_MF_bIns, X_test_numericalTS, X_test_age])
 #p.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_bIns.csv', y_pred_asNumber_MF_bIns[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_MF_bIns.csv', y_pred_asNumber_MF_bIns[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_bIns.csv', y_pred_asNumber_MF_bIns[0], fmt='%.18e', delimiter=',')
 
-# MF and SU only therapy for last year
+# MF and SGLT2 only therapy for last year
 X_test_drugs_MF_SGLT2 = X_test_drugs
 X_test_drugs_MF_SGLT2[:, 24:30] = 3065
 y_pred_asNumber_MF_SGLT2 = model.predict([X_test_drugs_MF_SGLT2, X_test_numericalTS, X_test_age])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SGLT2.csv', y_pred_asNumber_MF_SGLT2[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_MF_SGLT2.csv', y_pred_asNumber_MF_SGLT2[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SGLT2.csv', y_pred_asNumber_MF_SGLT2[0], fmt='%.18e', delimiter=',')
 
-# MF and SU only therapy for last year
+# MF and GLP1 only therapy for last year
 X_test_drugs_MF_GLP1 = X_test_drugs
 X_test_drugs_MF_GLP1[:, 24:30] = 2417
 y_pred_asNumber_MF_GLP1 = model.predict([X_test_drugs_MF_GLP1, X_test_numericalTS, X_test_age])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_GLP1.csv', y_pred_asNumber_MF_GLP1[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_sbp_MF_GLP1.csv', y_pred_asNumber_MF_GLP1[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_GLP1.csv', y_pred_asNumber_MF_GLP1[0], fmt='%.18e', delimiter=',')
 
 
 # write out X_test_drugs to send back to R for decoding/recoding
