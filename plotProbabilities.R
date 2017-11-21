@@ -44,10 +44,10 @@ library(ggplot2)
 
 
 # plotting
-plot(hba1c_nil[,1], sbp_nil[,1], pch = 16, cex=0.1, col = 'red', xlim = c(0, 1), ylim = c(0, 1))
-points(hba1c_MF_SU[, 1], sbp_MF_SU[, 1], pch = 16, cex = 0.1, col = 'black')
-points(hba1c_MF_bIns[, 1], sbp_MF_bIns[, 1], pch = 16, cex = 0.1, col = 'green')
-points(hba1c_MF_SGLT2[, 1], sbp_MF_SGLT2[, 1], pch = 16, cex = 0.1, col = 'blue')
+plot(hba1c_nil[,1], sbp_nil[,1], pch = 16, cex=0.3, col = 'red', xlim = c(0, 1), ylim = c(0, 1))
+points(hba1c_MF_SU[, 1], sbp_MF_SU[, 1], pch = 16, cex = 0.3, col = 'black')
+points(hba1c_MF_bIns[, 1], sbp_MF_bIns[, 1], pch = 16, cex = 0.3, col = 'green')
+points(hba1c_MF_SGLT2[, 1], sbp_MF_SGLT2[, 1], pch = 16, cex = 0.3, col = 'blue')
 
 library(aplpack)
 bagplot(hba1c_nil[,1], sbp_nil[,1])
@@ -95,6 +95,8 @@ arrows(x0=plotFrame$hba1c25,
        lwd=0.4)
 xlabelPlot <- plotFrame$hba1cMedian - 0.01
 text(0, y = plotFrame$sbpMedian, labels = plotFrame$labels)
+
+plot(c(5, 10, 20), )
 
 
 

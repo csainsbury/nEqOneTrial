@@ -116,14 +116,14 @@ simplifyDrugs <- function(inputFrame) {
   
   inputFrame <- subset(inputFrame, DrugNameNew != "Disposable")
   
-  inputFrame$DrugNameNew[grep("Glucose", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
-  inputFrame$DrugNameNew[grep("Glucogel", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
-  inputFrame$DrugNameNew[grep("Dextrogel", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
-  inputFrame$DrugNameNew[grep("DEXTROSE", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose_"
+  inputFrame$DrugNameNew[grep("Glucose", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose"
+  inputFrame$DrugNameNew[grep("Glucogel", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose"
+  inputFrame$DrugNameNew[grep("Dextrogel", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose"
+  inputFrame$DrugNameNew[grep("DEXTROSE", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucose"
   
   
-  inputFrame$DrugNameNew[grep("Glucagen Hypokit", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucagon_"
-  inputFrame$DrugNameNew[grep("Glucagon", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucagon_"
+  inputFrame$DrugNameNew[grep("Glucagen Hypokit", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucagon"
+  inputFrame$DrugNameNew[grep("Glucagon", inputFrame$DrugName, ignore.case = TRUE)] <- "Glucagon"
   
   inputFrame$DrugNameNew[grep("Optium Plus", inputFrame$DrugName, ignore.case = TRUE)] <- "Test Strips"
   
@@ -204,6 +204,8 @@ simplifyDrugs <- function(inputFrame) {
   
   # basal insulins
   inputFrame$DrugNameNew[grep("Insulin Glargine", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  inputFrame$DrugNameNew[grep("Lantus", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
+  
   inputFrame$DrugNameNew[grep("degludec", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
   inputFrame$DrugNameNew[grep("Degludec", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
   inputFrame$DrugNameNew[grep("Tresiba", inputFrame$DrugName, ignore.case = TRUE)] <- "analogueBasalInsulin_"
@@ -228,28 +230,28 @@ simplifyDrugs <- function(inputFrame) {
   inputFrame$DrugNameNew[grep("Porcine", inputFrame$DrugName, ignore.case = TRUE)] <- "porcineInsulin_"
   
   
-  inputFrame$DrugNameNew[grep("lancet", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
-  inputFrame$DrugNameNew[grep("Lancet", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
-  inputFrame$DrugNameNew[grep("LANCET", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
-  inputFrame$DrugNameNew[grep("Accu", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
-  inputFrame$DrugNameNew[grep("ACCU", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
-  inputFrame$DrugNameNew[grep("accu", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet_"
+  inputFrame$DrugNameNew[grep("lancet", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet"
+  inputFrame$DrugNameNew[grep("Lancet", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet"
+  inputFrame$DrugNameNew[grep("LANCET", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet"
+  inputFrame$DrugNameNew[grep("Accu", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet"
+  inputFrame$DrugNameNew[grep("ACCU", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet"
+  inputFrame$DrugNameNew[grep("accu", inputFrame$DrugName, ignore.case = TRUE)] <- "lancet"
   
   
-  inputFrame$DrugNameNew[grep("pen", inputFrame$DrugName, ignore.case = TRUE)] <- "pen_"
-  inputFrame$DrugNameNew[grep("Insulin Syringe", inputFrame$DrugName, ignore.case = TRUE)] <- "pen_"
+  inputFrame$DrugNameNew[grep("pen", inputFrame$DrugName, ignore.case = TRUE)] <- "pen"
+  inputFrame$DrugNameNew[grep("Insulin Syringe", inputFrame$DrugName, ignore.case = TRUE)] <- "pen"
   
     
-  inputFrame$DrugNameNew[grep("strip", inputFrame$DrugName, ignore.case = TRUE)] <- "TestStrips_"
+  inputFrame$DrugNameNew[grep("strip", inputFrame$DrugName, ignore.case = TRUE)] <- "TestStrips"
   
-  inputFrame$DrugNameNew[grep("Bd-Microfine", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
-  inputFrame$DrugNameNew[grep("BD Micro-Fine", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
-  inputFrame$DrugNameNew[grep("Needle", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
-  inputFrame$DrugNameNew[grep("need", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
-  inputFrame$DrugNameNew[grep("ndle", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle_"
+  inputFrame$DrugNameNew[grep("Bd-Microfine", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle"
+  inputFrame$DrugNameNew[grep("BD Micro-Fine", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle"
+  inputFrame$DrugNameNew[grep("Needle", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle"
+  inputFrame$DrugNameNew[grep("need", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle"
+  inputFrame$DrugNameNew[grep("ndle", inputFrame$DrugName, ignore.case = TRUE)] <- "Needle"
   
   
-  inputFrame$DrugNameNew[grep("Bd Safe-Clip", inputFrame$DrugName, ignore.case = TRUE)] <- "ClippingDevice_"
+  inputFrame$DrugNameNew[grep("Bd Safe-Clip", inputFrame$DrugName, ignore.case = TRUE)] <- "ClippingDevice"
   
   
   x <- as.data.frame(table(inputFrame$DrugNameNew))
@@ -286,6 +288,12 @@ drugDataSet$LinkId <- as.numeric(levels(drugDataSet$LinkId))[drugDataSet$LinkId]
 interestSet <- subset(drugDataSet, substr(drugDataSet$BNFCode,1,3) == "6.1" | substr(drugDataSet$BNFCode,1,4) == "0601")
 interestSet <- findSimilarDrugs(interestSet)
 interestSet <- simplifyDrugs(interestSet)
+
+## remove unaltered drugs
+interestSet$retain <- 0
+interestSet$retain[grep("_", interestSet$DrugName, ignore.case = TRUE)] <- 1
+interestSet <- subset(interestSet, retain == 1)
+interestSet$retain <- NULL
 
 interestSetDT <- data.table(interestSet)
 interestSetDT$prescription_dateplustime1 <- returnUnixDateTime(interestSetDT$PrescriptionDateTime)
