@@ -290,6 +290,7 @@ interestSet <- findSimilarDrugs(interestSet)
 interestSet <- simplifyDrugs(interestSet)
 
 ## remove unaltered drugs
+## if drug name has '_' after it in simplifydrugs() it will be retained.
 interestSet$retain <- 0
 interestSet$retain[grep("_", interestSet$DrugName, ignore.case = TRUE)] <- 1
 interestSet <- subset(interestSet, retain == 1)

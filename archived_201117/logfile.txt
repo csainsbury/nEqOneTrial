@@ -1,0 +1,16 @@
+## logfile
+
+sequence:
+1 run generateDrugData_forRNN.R # 111117 - simplified drugs introduced with top 25 drug classess now used rather than individual drug names
+
+2 run generateInputFilesForRNN_hb_bp_bmi2_originalFile.R to generate age file
+3 place output data in ./sourceData
+4 generate data for python3 with generate_drugPlusOtherParams_forPython.R
+
+
+generateDrugData_forRNN.R
+# generates the drug data for the RNN (for embedding). generates the combinations according to time bins defined in sequence. 1/30 for a 5y runin gives 2 month bins.
+
+# other datasets are in ./sourceData - from prior 2/3 param RNNs
+
+# plan to embed the drug data and then keras merge with other data

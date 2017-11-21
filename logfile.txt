@@ -1,7 +1,18 @@
-## logfile
+## logfile 201117
+## 
 
 sequence:
-1 run generateDrugData_forRNN.R # 111117 - simplified drugs introduced with top 25 drug classess now used rather than individual drug names
+1 run generateDrugData_forRNN.R # rewritten 201117 to simplify drugs down to only actively curated classes
+
+
+
+
+
+
+
+
+
+111117 - simplified drugs introduced with top 25 drug classess now used rather than individual drug names
 
 2 run generateInputFilesForRNN_hb_bp_bmi2_originalFile.R to generate age file
 3 place output data in ./sourceData

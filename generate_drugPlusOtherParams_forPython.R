@@ -69,20 +69,24 @@ hba1cDataOutcome <- paramDifference(hba1cData, numberOfBinsMakingUpTestPeriod)
 sbpDataOutcome <- paramDifference(sbpData, numberOfBinsMakingUpTestPeriod)
 bmiDataOutcome <- paramDifference(bmiData, numberOfBinsMakingUpTestPeriod)
 
-# merge parameter outcomes back into fiveParamMerge
+# merge parameter outcomes back into fiveParamMerge - hba1c
 hba1cDataOutcome_export <- merge(fiveParamMerge, hba1cDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
 hba1cDataOutcome_export <- hba1cDataOutcome_export$difference
 
-# merge parameter outcomes back into fiveParamMerge
+# merge parameter outcomes back into fiveParamMerge - sbp
 sbpDataOutcome_export <- merge(fiveParamMerge, sbpDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
 sbpDataOutcome_export <- sbpDataOutcome_export$difference
+
+# merge parameter outcomes back into fiveParamMerge - bmi
+bmiDataOutcome_export <- merge(fiveParamMerge, bmiDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
+bmiDataOutcome_export <- bmiDataOutcome_export$difference
 
 # export the files for python import:
 # needs to be improved. done manually for now
 drug_export <- fiveParamMerge[, 2:31]
 hba1c_export <- fiveParamMerge[, 32:61]
-sbp_export <- fiveParamMerge[, 67:96]
-bmi_export <- fiveParamMerge[, 102:131]
+sbp_export <- fiveParamMerge[, 66:95]
+bmi_export <- fiveParamMerge[, 100:129]
 age_export <- fiveParamMerge[, 134:163]
 
 ## zero the last n bins for final export:
@@ -107,6 +111,8 @@ write.table(age_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer
 # write out outcomes for python
 write.table(hba1cDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/hba1c_outcome.csv", sep=",", row.names = FALSE)
 write.table(sbpDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/sbp_outcome.csv", sep=",", row.names = FALSE)
+write.table(bmiDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/bmi_outcome.csv", sep=",", row.names = FALSE)
+
 
 
 
