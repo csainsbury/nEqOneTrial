@@ -172,7 +172,33 @@ arrows(x0=plotFrame$hba1c25,
 xlabelPlot <- plotFrame$hba1cMedian - 0.01
 text(0, y = plotFrame$bmiMedian, labels = plotFrame$labels)
 
+## characteristics by probability
+hba1c_decoded <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/decoded_Xtest_hba1c.csv",header=FALSE,row.names=NULL)
+sbp_decoded <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/decoded_Xtest_sbp.csv",header=FALSE,row.names=NULL)
+bmi_decoded <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/decoded_Xtest_bmi.csv",header=FALSE,row.names=NULL)
+age <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/X_test_age.csv",header=FALSE,row.names=NULL)
 
+hba1c_median <- apply(hba1c_decoded, 1, median)
+sbp_median <- apply(sbp_decoded, 1, median) 
+bmi_median <- apply(bmi_decoded, 1, median) 
 
+prob_char <- function(y_inputFrame) {
+  # y_inputFrame = hba1c_MF_SU[,1]
+  threshold = quantile(y_inputFrame)[3]
+  
+  print('hba1c')
+  print(quantile(hba1c_median[y_inputFrame >= threshold]))
+  print(quantile(hba1c_median[y_inputFrame < threshold]))
+  print('sbp')
+  print(quantile(sbp_median[y_inputFrame >= threshold]))
+  print(quantile(sbp_median[y_inputFrame < threshold]))
+  print('bmi')
+  print(quantile(bmi_median[y_inputFrame >= threshold]))
+  print(quantile(bmi_median[y_inputFrame < threshold]))
+  
+  
+}
 
+prob_char(hba1c_MF_GLP1[,1], quantile(hba1c_MF_GLP1[,1][3]))
 
+prob_char(hba1c_MF_SU[,1], quantile(hba1c_MF_SU[,1][3]))

@@ -20,6 +20,15 @@ sbpData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpol
 bmiData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_BMI_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_30increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
 ageData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/age_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), header = T)
 
+# diagnosisDataset<-read.csv("../GlCoSy/SDsource/diagnosisDateDeathDate.txt")
+diagnosisDataset<-read.csv("~/R/GlCoSy/SDsource/demogALL.txt", quote = "", 
+                           row.names = NULL, 
+                           stringsAsFactors = FALSE)
+
+genderSet <- data.frame(diagnosisDataset$LinkId, diagnosisDataset$CurrentGender_Mapped)
+colnames(genderSet) <- c("LinkId", "Gender")
+genderSet$numericalGender <- ifelse(genderSet$Gender == "Male", 1, 0)
+
 # add identifiers to data frames:
 addIdentifier <- function(inputFrame, nameVariable) {
   
@@ -44,6 +53,9 @@ twoParamMerge <- merge(hba1cData, sbpData, by.x = 'interpolatedTS_mortality.Link
 threeParamMerge <- merge(twoParamMerge, bmiData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
 fourParamMerge <- merge(threeParamMerge, ageData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'LinkId')
 fiveParamMerge <- merge(drugCombinationData_numerical, fourParamMerge, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
+
+# add gender data
+fiveParamMerge <- merge(fiveParamMerge, genderSet, by.x = "drugWordFrame_forAnalysis.LinkId", by.y = "LinkId")
 
 # generate outcome data for 1y delta hba1c
 testPeriodYears <- 1
@@ -89,6 +101,11 @@ sbp_export <- fiveParamMerge[, 66:95]
 bmi_export <- fiveParamMerge[, 100:129]
 age_export <- fiveParamMerge[, 134:163]
 
+# generate gender_export
+n = (NumberOfTimeBins - 1) #replicate n new columns
+gender_export <- data.frame(fiveParamMerge$numericalGender); colnames(gender_export) <- c("gender")
+gender_export30 = cbind(gender_export, replicate(n, gender_export$gender)) #replicate from column "Rate" in the df object
+
 ## zero the last n bins for final export:
 zeroFinalBins <- function(inputFrame, numberOfBinsToZero) {
   startZero <- (ncol(inputFrame) - numberOfBinsToZero) + 1
@@ -107,14 +124,26 @@ write.table(hba1c_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransf
 write.table(sbp_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/sbp_export.csv", sep=",", row.names = FALSE)
 write.table(bmi_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/bmi_export.csv", sep=",", row.names = FALSE)
 write.table(age_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/age_export.csv", sep=",", row.names = FALSE)
+write.table(gender_export30, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/gender_export.csv", sep=",", row.names = FALSE)
+
 
 # write out outcomes for python
 write.table(hba1cDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/hba1c_outcome.csv", sep=",", row.names = FALSE)
 write.table(sbpDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/sbp_outcome.csv", sep=",", row.names = FALSE)
 write.table(bmiDataOutcome_export, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/bmi_outcome.csv", sep=",", row.names = FALSE)
 
+## generate 1y mortality outcome
+# load and process mortality data
+deathData <- read.csv("~/R/GlCoSy/SDsource/diagnosisDateDeathDate.txt", sep=",")
+deathData$unix_deathDate <- returnUnixDateTime(deathData$DeathDate)
+deathData$unix_deathDate[is.na(deathData$unix_deathDate)] <- 0
+deathData$isDead <- ifelse(deathData$unix_deathDate > 0, 1, 0)
+deathData$unix_diagnosisDate <- returnUnixDateTime(deathData$DateOfDiagnosisDiabetes_Date)
 
+deathMerge <- merge(fiveParamMerge, deathData, by.x = "drugWordFrame_forAnalysis.LinkId", by.y = "LinkId")
+isDeadVector <- ifelse(deathMerge$isDead == 1 & (deathMerge$unix_deathDate > returnUnixDateTime(endRuninPeriod)), 1, 0)
 
+write.table(isDeadVector, file = "~/R/_workingDirectory/nEqOneTrial/pythonTransfer/death_outcome.csv", sep=",", row.names = FALSE)
 
 
 
