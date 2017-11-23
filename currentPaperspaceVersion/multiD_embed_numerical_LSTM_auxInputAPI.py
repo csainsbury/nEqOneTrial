@@ -46,6 +46,7 @@ set4 = dataset_4.values
 drugSet = set4
 
 # auxilliary inputFiles
+# aux 1 - age
 dataset_5 = pd.read_csv('./inputFiles/age_export.csv')
 set5 = dataset_5.values
 # set5 = set5.reshape(-1, 1)
@@ -54,16 +55,33 @@ sc_age = StandardScaler()
 set5_transformed = sc_age.fit_transform(set5[:, :30])
 ageSet = set5_transformed
 
+# aux 2 - gender
+dataset_6 = pd.read_csv('./inputFiles/gender_export.csv')
+set6 = dataset_6.values
+genderSet = set6
+
+'''
+set6 = set6[:, 0]
+
+# encode categorical data
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+labelencoder_gender = LabelEncoder()
+set6 = labelencoder_gender.fit_transform(set6)
+set6 = set6.reshape(-1, 1)
+onehotencoder = OneHotEncoder(categorical_features = 'all')
+set6 = onehotencoder.fit_transform(set6).toarray()
+'''
+
+
 # dataset_y = pd.read_csv('./boolean_y.csv')
-dataset_y = pd.read_csv('./outcomeFiles/death_outcome.csv')
+dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
 y = dataset_y.values
-# y = (y < (-20))
-#
-y = (y == 1)
+y = (y < (-10))
+#y = (y == 1)
 
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
-X = np.dstack([hba1cSet, sbpSet, bmiSet, ageSet, drugSet])
+X = np.dstack([hba1cSet, sbpSet, bmiSet, ageSet, genderSet, drugSet])
 y = y
 
 # split
@@ -75,17 +93,27 @@ X_train_values = X_train[:, :30, :]
 X_test_values = X_test[:, :30, :]
 
 X_train_numericalTS = X_train[:, :30, 0:3]
-X_train_drugs = X_train[:, :30, 4]
+X_train_drugs = X_train[:, :30, 5]
 # X_train_age = X_train[:, :30, 3]
 X_train_age = X_train[:, 1, 3] # reduce age to a single value
 X_train_age = X_train_age.reshape(-1, 1) # reshape to a (nrow, 1) array
+#
+X_train_gender = X_train[:, 1, 4] # reduce gender to a single value
+X_train_gender = X_train_gender.reshape(-1, 1) # reshape to a (nrow, 1) array
 
 
 X_test_numericalTS = X_test[:, :30, 0:3]
-X_test_drugs = X_test[:, :30, 4]
+X_test_drugs = X_test[:, :30, 5]
 # X_test_age = X_test[:, :30, 3]
 X_test_age = X_test[:, 1, 3]
 X_test_age = X_test_age.reshape(-1, 1)
+#
+X_test_gender = X_test[:, 1, 4]
+X_test_gender = X_test_gender.reshape(-1, 1)
+
+# concatenate non-TS elements to generate auxilliay input
+aux_train = np.column_stack((X_train_age, X_train_gender))
+aux_test = np.column_stack((X_test_age, X_test_gender))
 
 
 '''
