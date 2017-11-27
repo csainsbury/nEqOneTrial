@@ -327,8 +327,8 @@ cleanBMIData <- read.csv("~/R/GlCoSy/SD_workingSource/BMIsetDTclean.csv", sep=",
 
 ##
 # set variables
-runInStartDate = "2010-01-01"
-runInEndDate = "2015-01-01"
+runInStartDate = "2011-10-01"
+runInEndDate = "2016-10-01"
 binLength_months = 2
 
 generateImputedTimeSeriesData(cleanHbA1cData, deathData, runInStartDate, runInEndDate, binLength_months, "hba1c", 8)

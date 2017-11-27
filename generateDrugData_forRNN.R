@@ -304,8 +304,8 @@ interestSetDT = interestSetDT[prescription_dateplustime1 < 1574121600]
 interestSetDT = interestSetDT[prescription_dateplustime1 > (0)]
 
 # set runin period of interest
-startRuninPeriod <- '2010-01-01'
-endRuninPeriod   <- '2015-01-01'
+startRuninPeriod <- '2011-10-01'
+endRuninPeriod   <- '2016-10-01'
 interestSetDT <- interestSetDT[prescription_dateplustime1 > returnUnixDateTime(startRuninPeriod) &
                                  prescription_dateplustime1 < returnUnixDateTime(endRuninPeriod)]
 

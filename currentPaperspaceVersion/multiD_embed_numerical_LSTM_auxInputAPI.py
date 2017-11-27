@@ -1,6 +1,8 @@
 
 from keras.layers import Input, Embedding, Reshape, merge, Dropout, Dense, LSTM, core, Activation
 from keras.layers import TimeDistributed, Flatten, concatenate
+from keras.layers.convolutional import Conv1D
+from keras.layers.convolutional import MaxPooling1D
 
 from keras.engine import Model
 from keras.models import Sequential
@@ -32,6 +34,14 @@ set2_transformed = sc_sbp.fit_transform(set2[:, :30])
 sbpSet = set2_transformed
 set2_concat = np.concatenate((set2_transformed, set2[:, 30:36]), axis = 1)
 
+dataset_8 = pd.read_csv('./inputFiles/dbp_export.csv')
+set8 = dataset_8.values
+
+sc_dbp = StandardScaler()
+set8_transformed = sc_dbp.fit_transform(set8[:, :30])
+dbpSet = set8_transformed
+set8_concat = np.concatenate((set8_transformed, set8[:, 30:36]), axis = 1)
+
 dataset_3 = pd.read_csv('./inputFiles/bmi_export.csv')
 set3 = dataset_3.values
 
@@ -59,7 +69,6 @@ ageSet = set5_transformed
 dataset_6 = pd.read_csv('./inputFiles/gender_export.csv')
 set6 = dataset_6.values
 genderSet = set6
-
 '''
 set6 = set6[:, 0]
 
@@ -72,16 +81,33 @@ onehotencoder = OneHotEncoder(categorical_features = 'all')
 set6 = onehotencoder.fit_transform(set6).toarray()
 '''
 
+# aux 3 - diabetes duration
+dataset_7 = pd.read_csv('./inputFiles/duration_export.csv')
+set7 = dataset_7.values
+
+sc_duration = StandardScaler()
+set7_transformed = sc_duration.fit_transform(set7[:, :30])
+durationSet = set7_transformed
+# set2_concat = np.concatenate((set2_transformed, set2[:, 30:36]), axis = 1)
 
 # dataset_y = pd.read_csv('./boolean_y.csv')
-dataset_y = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
-y = dataset_y.values
-y = (y < (-10))
+dataset_y_hba1c = pd.read_csv('./outcomeFiles/hba1c_outcome.csv')
+y_hba1c = dataset_y_hba1c.values
+
+dataset_y_sbp = pd.read_csv('./outcomeFiles/sbp_outcome.csv')
+y_sbp = dataset_y_sbp.values
+
+#y = ((y < (60)) & (y > (48)))
+y = (y_hba1c < (-5))
 #y = (y == 1)
+dataset_y_bmi = pd.read_csv('./outcomeFiles/bmi_outcome.csv')
+y_bmi = dataset_y_bmi.values
+
+#y = ((y1 < (-10)) | (y2 < 0))
 
 
 # X = np.dstack([set1_concat, set2_concat, set3_concat])
-X = np.dstack([hba1cSet, sbpSet, bmiSet, ageSet, genderSet, drugSet])
+X = np.dstack([hba1cSet, sbpSet, bmiSet, dbpSet, ageSet, genderSet, durationSet, drugSet])
 y = y
 
 # split
@@ -92,33 +118,47 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, rando
 X_train_values = X_train[:, :30, :]
 X_test_values = X_test[:, :30, :]
 
-X_train_numericalTS = X_train[:, :30, 0:3]
-X_train_drugs = X_train[:, :30, 5]
+X_train_numericalTS = X_train[:, :30, 0:4]
+X_train_drugs = X_train[:, :30, 7]
 # X_train_age = X_train[:, :30, 3]
-X_train_age = X_train[:, 1, 3] # reduce age to a single value
+X_train_age = X_train[:, 1, 4] # reduce age to a single value
 X_train_age = X_train_age.reshape(-1, 1) # reshape to a (nrow, 1) array
 #
-X_train_gender = X_train[:, 1, 4] # reduce gender to a single value
+X_train_gender = X_train[:, 1, 5] # reduce gender to a single value
 X_train_gender = X_train_gender.reshape(-1, 1) # reshape to a (nrow, 1) array
+#
+X_train_duration = X_train[:, 1, 6] # reduce gender to a single value
+X_train_duration = X_train_duration.reshape(-1, 1) # reshape to a (nrow, 1) array
 
 
-X_test_numericalTS = X_test[:, :30, 0:3]
-X_test_drugs = X_test[:, :30, 5]
+X_test_numericalTS = X_test[:, :30, 0:4]
+X_test_drugs = X_test[:, :30, 7]
 # X_test_age = X_test[:, :30, 3]
-X_test_age = X_test[:, 1, 3]
+X_test_age_forInverseTransform = X_test[:, :, 4]
+X_test_age = X_test[:, 1, 4]
 X_test_age = X_test_age.reshape(-1, 1)
 #
-X_test_gender = X_test[:, 1, 4]
+X_test_gender = X_test[:, 1, 5]
 X_test_gender = X_test_gender.reshape(-1, 1)
+#
+X_test_duration = X_test[:, 1, 6] # reduce gender to a single value
+X_test_duration = X_test_duration.reshape(-1, 1) # reshape to a (nrow, 1) array
+
 
 # concatenate non-TS elements to generate auxilliay input
-aux_train = np.column_stack((X_train_age, X_train_gender))
-aux_test = np.column_stack((X_test_age, X_test_gender))
+aux_train = np.column_stack((X_train_age, X_train_gender, X_train_duration))
+aux_test = np.column_stack((X_test_age, X_test_gender, X_test_duration))
 
 
 '''
 RNN setup and run
 '''
+
+# variables to feed into network
+auxInput_ncols = len(aux_train[0])
+denseLayerNodes = 64
+lstm_layer_1 = 128
+lstm_layer_2 = 8
 
 # a = input the drug dataset (2-dimensional: IDs, timesteps)
 drug_set = Input(shape = (30, ), dtype='int32', name = 'drug_set')
@@ -126,36 +166,40 @@ drug_set = Input(shape = (30, ), dtype='int32', name = 'drug_set')
 emb = Embedding(input_dim = 4000, output_dim = 8)(drug_set) # lower output dimensions seems better
 
 # numericTS_set = input the numerical data (3-dimensional: IDs, timesteps, dimensions(n parameters))
-numericTS_set = Input(shape = (30, 3), name = 'numericTS_set')
+numericTS_set = Input(shape = (30, 4), name = 'numericTS_set')
 
 # merge embedded and numerical data
 # merged = keras.layers.concatenate([emb, numericTS_set])
 merged = merge([emb, numericTS_set], mode='concat')
 
-lstm_out = LSTM(return_sequences=False, input_shape = (30, 11), units=128)(merged)
-auxiliary_output = Dense(1, activation='sigmoid', name='aux_output')(lstm_out)
+lstm_out = LSTM(return_sequences=True, input_shape = (30, 12), units=lstm_layer_1)(merged)
+lstm_out = Dropout(0.5)(lstm_out)
+lstm_out = LSTM(return_sequences=False, units=lstm_layer_2)(lstm_out)
 
-auxiliary_input = Input(shape=(1,), name='aux_input')
+# auxiliary_output = Dense(1, activation='sigmoid', name='aux_output')(lstm_out)
+auxiliary_output = Dense(y.shape[1])(lstm_out)
+
+auxiliary_input = Input(shape=(auxInput_ncols,), name='aux_input')
 # x = merge([lstm_out, auxiliary_input], mode = 'concat')
 x = concatenate([lstm_out, auxiliary_input])
 
-x = Dense(64, activation='relu')(x)
+x = Dense(denseLayerNodes, activation='relu')(x)
 x = Dropout(0.5)(x)
-x = Dense(64, activation='relu')(x)
+x = Dense(denseLayerNodes, activation='relu')(x)
 x = Dropout(0.5)(x)
-x = Dense(64, activation='relu')(x)
+x = Dense(denseLayerNodes, activation='relu')(x)
 
-# And finally we add the main logistic regression layer
+# add the main logistic regression layer
 main_output = Dense(1, activation='sigmoid', name='main_output')(x)
 
 model = Model(inputs=[drug_set, numericTS_set, auxiliary_input], outputs=[main_output, auxiliary_output])
 
 model.compile(optimizer='adam', loss='binary_crossentropy', loss_weights=[0.3, 0.4])
 
-model.fit([X_train_drugs, X_train_numericalTS, X_train_age], [y_train, y_train], epochs=6, batch_size=128)
+model.fit([X_train_drugs, X_train_numericalTS, aux_train], [y_train, y_train], epochs=6, batch_size=128)
 
 
-y_pred_asNumber = model.predict([X_test_drugs, X_test_numericalTS, X_test_age])
+y_pred_asNumber = model.predict([X_test_drugs, X_test_numericalTS, aux_test])
 from sklearn.metrics import roc_auc_score
 mainOutput = roc_auc_score(y_test, y_pred_asNumber[0])
 auxOutput = roc_auc_score(y_test, y_pred_asNumber[1])
@@ -170,50 +214,57 @@ np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_original.csv', y_pred_asNumber[
 
 # nil therapy for last year
 X_test_drugs_nil = X_test_drugs
-X_test_drugs_nil[:, 24:30] = 737
-y_pred_asNumber_nil = model.predict([X_test_drugs_nil, X_test_numericalTS, X_test_age])
+X_test_drugs_nil[:, 24:30] = 784
+y_pred_asNumber_nil = model.predict([X_test_drugs_nil, X_test_numericalTS, aux_test])
 # np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_nil.csv', y_pred_asNumber_nil[0], fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_nil.csv', y_pred_asNumber_nil[0], fmt='%.18e', delimiter=',')
 
 # MF only therapy for last year
 X_test_drugs_MF = X_test_drugs
-X_test_drugs_MF[:, 24:30] = 713
-y_pred_asNumber_MF = model.predict([X_test_drugs_MF, X_test_numericalTS, X_test_age])
+X_test_drugs_MF[:, 24:30] = 756
+y_pred_asNumber_MF = model.predict([X_test_drugs_MF, X_test_numericalTS, aux_test])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF.csv', y_pred_asNumber_MF[0], fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF.csv', y_pred_asNumber_MF[0], fmt='%.18e', delimiter=',')
 
+# MF only therapy for last year
+X_test_drugs_SU = X_test_drugs
+X_test_drugs_SU[:, 24:30] = 794
+y_pred_asNumber_SU = model.predict([X_test_drugs_SU, X_test_numericalTS, aux_test])
+#np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF.csv', y_pred_asNumber_MF[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_SU.csv', y_pred_asNumber_SU[0], fmt='%.18e', delimiter=',')
+
 # MF and SU only therapy for last year
 X_test_drugs_MF_SU = X_test_drugs
-X_test_drugs_MF_SU[:, 24:30] = 728
-y_pred_asNumber_MF_SU = model.predict([X_test_drugs_MF_SU, X_test_numericalTS, X_test_age])
+X_test_drugs_MF_SU[:, 24:30] = 775
+y_pred_asNumber_MF_SU = model.predict([X_test_drugs_MF_SU, X_test_numericalTS, aux_test])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SU.csv', y_pred_asNumber_MF_SU[0], fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SU.csv', y_pred_asNumber_MF_SU[0], fmt='%.18e', delimiter=',')
 
-# MF and basal Insulin only therapy for last year
-X_test_drugs_MF_bIns = X_test_drugs
-X_test_drugs_MF_bIns[:, 24:30] = 654
-y_pred_asNumber_MF_bIns = model.predict([X_test_drugs_MF_bIns, X_test_numericalTS, X_test_age])
+# MF and bd Insulin only therapy for last year
+X_test_drugs_MF_bdIns = X_test_drugs
+X_test_drugs_MF_bdIns[:, 24:30] = 720
+y_pred_asNumber_MF_bdIns = model.predict([X_test_drugs_MF_bdIns, X_test_numericalTS, aux_test])
 #p.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_bIns.csv', y_pred_asNumber_MF_bIns[0], fmt='%.18e', delimiter=',')
-np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_bIns.csv', y_pred_asNumber_MF_bIns[0], fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_bdIns.csv', y_pred_asNumber_MF_bdIns[0], fmt='%.18e', delimiter=',')
 
 # MF and SGLT2 only therapy for last year
 X_test_drugs_MF_SGLT2 = X_test_drugs
-X_test_drugs_MF_SGLT2[:, 24:30] = 720
-y_pred_asNumber_MF_SGLT2 = model.predict([X_test_drugs_MF_SGLT2, X_test_numericalTS, X_test_age])
+X_test_drugs_MF_SGLT2[:, 24:30] = 765
+y_pred_asNumber_MF_SGLT2 = model.predict([X_test_drugs_MF_SGLT2, X_test_numericalTS, aux_test])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SGLT2.csv', y_pred_asNumber_MF_SGLT2[0], fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_SGLT2.csv', y_pred_asNumber_MF_SGLT2[0], fmt='%.18e', delimiter=',')
 
 # MF and GLP1 only therapy for last year
 X_test_drugs_MF_GLP1 = X_test_drugs
-X_test_drugs_MF_GLP1[:, 24:30] = 601
-y_pred_asNumber_MF_GLP1 = model.predict([X_test_drugs_MF_GLP1, X_test_numericalTS, X_test_age])
+X_test_drugs_MF_GLP1[:, 24:30] = 646
+y_pred_asNumber_MF_GLP1 = model.predict([X_test_drugs_MF_GLP1, X_test_numericalTS, aux_test])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_GLP1.csv', y_pred_asNumber_MF_GLP1[0], fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_GLP1.csv', y_pred_asNumber_MF_GLP1[0], fmt='%.18e', delimiter=',')
 
 # MF and GLP1 only therapy for last year
 X_test_drugs_MF_GLP1_SGLT2 = X_test_drugs
-X_test_drugs_MF_GLP1_SGLT2[:, 24:30] = 609
-y_pred_asNumber_MF_GLP1_SGLT2 = model.predict([X_test_drugs_MF_GLP1_SGLT2, X_test_numericalTS, X_test_age])
+X_test_drugs_MF_GLP1_SGLT2[:, 24:30] = 653
+y_pred_asNumber_MF_GLP1_SGLT2 = model.predict([X_test_drugs_MF_GLP1_SGLT2, X_test_numericalTS, aux_test])
 #np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_GLP1.csv', y_pred_asNumber_MF_GLP1[0], fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/y_pred_asNumber_hba1c_MF_GLP1_SGLT2.csv', y_pred_asNumber_MF_GLP1_SGLT2[0], fmt='%.18e', delimiter=',')
 
@@ -223,11 +274,13 @@ np.savetxt('./pythonOutput/X_test_drugs.csv', X_test_drugs, fmt='%.18e', delimit
 np.savetxt('./pythonOutput/decoded_Xtest_hba1c.csv', sc_hba1c.inverse_transform(X_test_numericalTS[:, :, 0]), fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/decoded_Xtest_sbp.csv', sc_sbp.inverse_transform(X_test_numericalTS[:, :, 1]), fmt='%.18e', delimiter=',')
 np.savetxt('./pythonOutput/decoded_Xtest_bmi.csv', sc_bmi.inverse_transform(X_test_numericalTS[:, :, 2]), fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/decoded_Xtest_dbp.csv', sc_dbp.inverse_transform(X_test_numericalTS[:, :, 3]), fmt='%.18e', delimiter=',')
 
-np.savetxt('./pythonOutput/X_test_age.csv', X_test_age, fmt='%.18e', delimiter=',')
+np.savetxt('./pythonOutput/X_test_age.csv', sc_age.inverse_transform(X_test_age_forInverseTransform), fmt='%.18e', delimiter=',')
 
 np.savetxt('./pythonOutput/y_pred_asNumber.csv', y_pred_asNumber, fmt='%.18e', delimiter=',')
 
+'''
 # sandbox test
 rowN = 21
 MFalone_drugs = X_test_drugs[rowN, ]
@@ -246,7 +299,7 @@ MFalone_age = X_test_age[rowN, ]
 
 sandbox_y_pred_asNumber = model.predict([MFalone_drugs, MFalone_numeric, MFalone_age])
 sandbox_y_pred_asNumber
-
+'''
 
 
 
