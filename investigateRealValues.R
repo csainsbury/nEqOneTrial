@@ -38,6 +38,8 @@ summary(hba1c_MF_bdIns)
 # mf + sglt2
 decoded_hba1c <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/decoded_Xtest_hba1c.csv",header=FALSE,row.names=NULL)
 decoded_bmi <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/decoded_Xtest_bmi.csv",header=FALSE,row.names=NULL)
+decoded_sbp <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/decoded_Xtest_sbp.csv",header=FALSE,row.names=NULL)
+
 decoded_age <- read.csv("~/R/_workingDirectory/nEqOneTrial/currentPaperspaceVersion/pythonOutput/X_test_age.csv",header=FALSE,row.names=NULL)
 
 analysisFrame <- cbind(apply(decoded_hba1c[, 1:24], 1, median), apply(decoded_bmi[, 1:24], 1, median), decoded_age, hba1c_MF_SU, hba1c_MF_SGLT2, hba1c_MF_GLP1, hba1c_MF_bdIns)
@@ -60,7 +62,7 @@ su_bmi <- boxplot(analysisFrame$MF_SU ~ cut(analysisFrame$bmi, breaks = seq(25, 
 sglt2_bmi <- boxplot(analysisFrame$MF_SGLT2 ~ cut(analysisFrame$bmi, seq(25, 40, 1)), varwidth = T)
 glp1_bmi <- boxplot(analysisFrame$MF_GLP1 ~ cut(analysisFrame$bmi, seq(25, 40, 1)), varwidth = T)
 
-plot(su_bmi$stats[3,], ylim = c(0.05, 0.3), cex = (sqrt(su_bmi$n) / 10)); lines(su_bmi$stats[3,])
+plot(su_bmi$stats[3,], ylim = c(0.05, 1), cex = (sqrt(su_bmi$n) / 10)); lines(su_bmi$stats[3,])
 points(sglt2_bmi$stats[3,], col = 'red', cex = (sqrt(sglt2_bmi$n) / 10)); lines(sglt2_bmi$stats[3,], col = 'red')
 points(glp1_bmi$stats[3,], col = 'blue', cex = (sqrt(glp1_bmi$n) / 10)); lines(glp1_bmi$stats[3,], col = 'blue')
 
@@ -86,8 +88,11 @@ for (j in seq(1, nrow(analysisFrame), 1)) {
 }
 
 transparency = 0.1
-plot(analysisFrame$bmi, analysisFrame$hba1c, ylim = c(30, 120), xlim = c(15, 50), pch = 16, cex = 4, col = ifelse(analysisFrame$max == "SU", rgb(0, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "SGLT2", rgb(1, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "GLP", rgb(0, 0, 1, transparency, maxColorValue = 1), rgb(0, 1, 0, transparency, maxColorValue = 1)))))
+plot(analysisFrame$bmi, analysisFrame$hba1c, ylim = c(30, 120), xlim = c(15, 50), pch = 16, cex = 4, col = ifelse(analysisFrame$max == "SU", rgb(0, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "SGLT2", rgb(1, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "GLP1", rgb(0, 0, 1, transparency, maxColorValue = 1), rgb(0, 1, 0, transparency, maxColorValue = 1)))))
+sglt2_regression <- abline(lm(subset(analysisFrame, max == "SGLT2")$hba1c ~ subset(analysisFrame, max == "SGLT2")$bmi), col = "red")
+glp1_regression <- abline(lm(subset(analysisFrame, max == "GLP1")$hba1c ~ subset(analysisFrame, max == "GLP1")$bmi), col = "blue")
+su_regression <- abline(lm(subset(analysisFrame, max == "SU")$hba1c ~ subset(analysisFrame, max == "SU")$bmi), col = "black")
 
-plot(log(analysisFrame$bmi), log(analysisFrame$hba1c), pch = 16, cex = 4, col = ifelse(analysisFrame$max == "SU", rgb(0, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "SGLT2", rgb(1, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "GLP", rgb(0, 0, 1, transparency, maxColorValue = 1), rgb(0, 1, 0, transparency, maxColorValue = 1)))))
+plot(log(analysisFrame$bmi), log(analysisFrame$hba1c), pch = 16, cex = 4, col = ifelse(analysisFrame$max == "SU", rgb(0, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "SGLT2", rgb(1, 0, 0, transparency, maxColorValue = 1), ifelse(analysisFrame$max == "GLP1", rgb(0, 0, 1, transparency, maxColorValue = 1), rgb(0, 1, 0, transparency, maxColorValue = 1)))))
 
 
