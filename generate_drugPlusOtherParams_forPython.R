@@ -5,7 +5,7 @@ returnUnixDateTime<-function(date) {
   return(returnVal)
 }
 
-sequence <- seq(0, 1 , (1/30)) # inherit from generateDrugData_forRNN.R
+sequence <- seq(0, 1 , (1/60)) # inherit from generateDrugData_forRNN.R
 
 # set runin period of interest # inherited from other files
 startRuninPeriod <- '2011-10-01'
@@ -13,12 +13,12 @@ endRuninPeriod   <- '2016-10-01'
 
 followupTimeInterval = returnUnixDateTime(endRuninPeriod) - returnUnixDateTime(startRuninPeriod)
 
-drugCombinationData_numerical <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_withID_", (length(sequence) - 1),"bins_", startRuninPeriod,"_to_", endRuninPeriod,"_simplifiedDrugs.csv", sep = ''), header = T)
+drugCombinationData_numerical <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/numericalDrugsFrame_withID_", (length(sequence) - 1),"bins_", startRuninPeriod,"_to_", endRuninPeriod,"_simplifiedDrugs_1mBins_interpolated.csv", sep = ''), header = T)
 
-hba1cData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_hba1c_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_30increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
-sbpData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_SBP_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_30increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
-dbpData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_DBP_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_30increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
-bmiData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_BMI_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_30increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
+hba1cData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_hba1c_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", (length(sequence) - 1),"increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
+sbpData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_SBP_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", (length(sequence) - 1),"increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
+dbpData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_DBP_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", (length(sequence) - 1),"increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
+bmiData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/interpolatedTS_BMI_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", (length(sequence) - 1),"increments_", startRuninPeriod, "_to_", endRuninPeriod, "_locf.csv", sep = ''), header = T)
 # ageData <- read.csv(paste("~/R/_workingDirectory/nEqOneTrial/sourceData/age_data_", round(followupTimeInterval / (60*60*24*365.25), 0), "y_", startRuninPeriod, "_to_", endRuninPeriod, "_T2.csv", sep = ''), header = T)
 
 # diagnosisDataset<-read.csv("../GlCoSy/SDsource/diagnosisDateDeathDate.txt")
@@ -75,18 +75,18 @@ bmiData <- addIdentifier(bmiData, 'bmi_')
 twoParamMerge <- merge(hba1cData, sbpData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
 threeParamMerge <- merge(twoParamMerge, bmiData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
 fourParamMerge <- merge(threeParamMerge, dbpData, by.x = 'interpolatedTS_mortality.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
-fiveParamMerge <- merge(drugCombinationData_numerical, fourParamMerge, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'interpolatedTS_mortality.LinkId')
+fiveParamMerge <- merge(drugCombinationData_numerical, fourParamMerge, by.x = 'LinkId', by.y = 'interpolatedTS_mortality.LinkId')
 
 # add gender data
-fiveParamMerge <- merge(fiveParamMerge, genderSet, by.x = "drugWordFrame_forAnalysis.LinkId", by.y = "LinkId")
-fiveParamMerge <- merge(fiveParamMerge, DMdurationSet, by.x = "drugWordFrame_forAnalysis.LinkId", by.y = "LinkId")
-fiveParamMerge <- merge(fiveParamMerge, ageSet, by.x = "drugWordFrame_forAnalysis.LinkId", by.y = "LinkId")
+fiveParamMerge <- merge(fiveParamMerge, genderSet, by.x = "LinkId", by.y = "LinkId")
+fiveParamMerge <- merge(fiveParamMerge, DMdurationSet, by.x = "LinkId", by.y = "LinkId")
+fiveParamMerge <- merge(fiveParamMerge, ageSet, by.x = "LinkId", by.y = "LinkId")
 
 
 # generate outcome data for 1y delta hba1c
 testPeriodYears <- 1
 runinPeriodDurationYears <- 5
-NumberOfTimeBins <- 30
+NumberOfTimeBins <- (length(sequence) - 1)
 
 numberOfBinsMakingUpTestPeriod <- (NumberOfTimeBins / runinPeriodDurationYears) * testPeriodYears
 
@@ -109,19 +109,19 @@ dbpDataOutcome <- paramDifference(dbpData, numberOfBinsMakingUpTestPeriod)
 bmiDataOutcome <- paramDifference(bmiData, numberOfBinsMakingUpTestPeriod)
 
 # merge parameter outcomes back into fiveParamMerge - hba1c
-hba1cDataOutcome_export <- merge(fiveParamMerge, hba1cDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
+hba1cDataOutcome_export <- merge(fiveParamMerge, hba1cDataOutcome, by.x = 'LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
 hba1cDataOutcome_export <- hba1cDataOutcome_export$difference
 
 # merge parameter outcomes back into fiveParamMerge - sbp
-sbpDataOutcome_export <- merge(fiveParamMerge, sbpDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
+sbpDataOutcome_export <- merge(fiveParamMerge, sbpDataOutcome, by.x = 'LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
 sbpDataOutcome_export <- sbpDataOutcome_export$difference
 
 # merge parameter outcomes back into fiveParamMerge - sbp
-dbpDataOutcome_export <- merge(fiveParamMerge, dbpDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
+dbpDataOutcome_export <- merge(fiveParamMerge, dbpDataOutcome, by.x = 'LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
 dbpDataOutcome_export <- dbpDataOutcome_export$difference
 
 # merge parameter outcomes back into fiveParamMerge - bmi
-bmiDataOutcome_export <- merge(fiveParamMerge, bmiDataOutcome, by.x = 'drugWordFrame_forAnalysis.LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
+bmiDataOutcome_export <- merge(fiveParamMerge, bmiDataOutcome, by.x = 'LinkId', by.y = 'inputFrame.interpolatedTS_mortality.LinkId')
 bmiDataOutcome_export <- bmiDataOutcome_export$difference
 
 # export the files for python import:

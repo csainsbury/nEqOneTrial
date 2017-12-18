@@ -2,9 +2,9 @@
 
 # function to output values
 # numericValueColumnIndex = the column that the numeric value of interest is in (hba1c, sbp etc)
-generateImputedTimeSeriesData <- function(inputFrame, input_deathData, startTime, endTime, input_binLengthMonths, label, numericValueColumnIndex) {
+generateImputedTimeSeriesData <- function(inputFrame, input_deathData, startTime, endTime, numberOfBins, label, numericValueColumnIndex) {
   
-  # inputFrame = cleanBMIData; input_deathData = deathData; startTime = runInStartDate; endTime = runInEndDate, input_binLengthMonths = 2; label = 'BMI_test'; numericValueColumnIndex = 8
+  # inputFrame = cleanBMIData[1:1000, ]; input_deathData = deathData; startTime = runInStartDate; endTime = runInEndDate; input_binLengthMonths = 2; label = 'BMI_test'; numericValueColumnIndex = 8; numberOfBins = 10
 
 library(data.table)
 library(imputeTS)
@@ -128,7 +128,7 @@ deathData <- input_deathData
 deathData$unix_deathDate <- returnUnixDateTime(deathData$DeathDate)
 deathData$unix_deathDate[is.na(deathData$unix_deathDate)] <- 0
 deathData$isDead <- ifelse(deathData$unix_deathDate > 0, 1, 0)
-deathData$unix_diagnosisDate <- returnUnixDateTime(deathData$DateOfDiagnosisDiabetes_Date)
+deathData$unix_diagnosisDate <- returnUnixDateTime(deathData$DateOfDiagnosis)
 
 deathDataDT <- data.table(deathData)
 
@@ -159,11 +159,11 @@ interestSetDT <- transform(interestSetDT,id=as.numeric(factor(LinkId)))
 
 # set time bins
 # bin length in months
-binLengthMonths = input_binLengthMonths
-binLengthSeconds = (60*60*24*(365.25 / 12)) * binLengthMonths
+# binLengthMonths = input_binLengthMonths
+# binLengthSeconds = (60*60*24*(365.25 / 12)) * binLengthMonths
 unixRunInDuration = returnUnixDateTime(endRuninPeriod) - returnUnixDateTime(startRuninPeriod)
 unixRunInDurationYears = round(unixRunInDuration / (60*60*24*365.25), 0)
-numberOfBins = round(unixRunInDuration / binLengthSeconds, 0)
+# numberOfBins = round(unixRunInDuration / binLengthSeconds, 0)
 
 sequence <- seq(0, 1 , (1/numberOfBins))
 
@@ -318,23 +318,24 @@ write.table(y_vector_deadAt_4_year, paste("~/R/_workingDirectory/nEqOneTrial/sou
 ##
 # execution code
 # load in raw data required
-deathData <- read.csv("~/R/GlCoSy/SDsource/diagnosisDateDeathDate.txt", sep=",")
+deathData <- read.csv("~/R/_workingDirectory/nEqOneTrial/cleanedData/deathData.csv", sep=",")
 
 cleanHbA1cData <- read.csv("~/R/GlCoSy/SD_workingSource/hba1cDTclean.csv", sep=",", header = TRUE, row.names = NULL)
 cleanSBPData <- read.csv("~/R/GlCoSy/SD_workingSource/SBPsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
-cleanDBPData <- read.csv("~/R/GlCoSy/SD_workingSource/DBPsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
+# cleanDBPData <- read.csv("~/R/GlCoSy/SD_workingSource/DBPsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
 cleanBMIData <- read.csv("~/R/GlCoSy/SD_workingSource/BMIsetDTclean.csv", sep=",", header = TRUE, row.names = NULL)
 
 ##
 # set variables
-runInStartDate = "2011-10-01"
-runInEndDate = "2016-10-01"
-binLength_months = 2
+runInStartDate = "2012-10-01"
+runInEndDate = "2017-10-01"
+binLength_months = 1
+numberOfBins = length(seq(0, 1 , (1/60))) - 1 
 
-generateImputedTimeSeriesData(cleanHbA1cData, deathData, runInStartDate, runInEndDate, binLength_months, "hba1c", 8)
-generateImputedTimeSeriesData(cleanSBPData, deathData, runInStartDate, runInEndDate, binLength_months, "SBP", 8)
-generateImputedTimeSeriesData(cleanDBPData, deathData, runInStartDate, runInEndDate, binLength_months, "DBP", 8)
-generateImputedTimeSeriesData(cleanBMIData, deathData, runInStartDate, runInEndDate, binLength_months, "BMI_test", 6)
+generateImputedTimeSeriesData(cleanHbA1cData, deathData, runInStartDate, runInEndDate, numberOfBins, "hba1c", 8)
+generateImputedTimeSeriesData(cleanSBPData, deathData, runInStartDate, runInEndDate, numberOfBins, "SBP", 8)
+# generateImputedTimeSeriesData(cleanDBPData, deathData, runInStartDate, runInEndDate, numberOfBins, "DBP", 8)
+generateImputedTimeSeriesData(cleanBMIData, deathData, runInStartDate, runInEndDate, numberOfBins, "BMI", 6)
 
 
 
