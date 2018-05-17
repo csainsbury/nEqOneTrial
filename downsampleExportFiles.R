@@ -34,16 +34,16 @@ colnames(classFrame) <- classesToFind
 for (c in seq(1, length(classesToFind), 1)) {
   print(c)
   class = classesToFind[c]
-  vectorCombinations_withClass <- lookupD$vectorNumbers[grep("SU_", lookupD[, 1])]
+  vectorCombinations_withClass <- lookupD$vectorNumbers[grep("SU_", lookupD[, c])]
   
   # loop through all IDs drug combinations to see if any of the matching combinations present
   for (d in seq(1, nrow(drugD), 1)) {
     if(d %% 1000 == 0) {print(d)} 
     testRow <- drugD[d, 1:60]
     matchOutput <- match(testRow, vectorCombinations_withClass)
+    matchOutput[is.na(matchOutput)] <- 0
     matchResult = ifelse(sum(matchOutput) > 0, 1, 0)
-    classFrame[c, d] = matchResult
+    classFrame[d, c] = matchResult
   }
-  
   
 }
