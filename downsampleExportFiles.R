@@ -26,15 +26,16 @@ ageD$uniqueID <- seq(1, nID, 1)
 ## process drug data to flag IDs with classes of prescription
 ## SU, MF, TZD, DPP4, SGLT2, GLP1, Insulin
 
-classesToFind <- c("SU_", "MF_", "TZD_", "DPP4_", "SGLT2_", "GLP1_", "Insulin_")
+classesToFind <- c("SU_", "Metformin_", "TZD_", "DPP4_", "SGLT2_", "GLP1_", "Insulin_")
 classFrame <- as.data.frame(matrix(0, nrow = nrow(bmiD), ncol = length(classesToFind)))
 colnames(classFrame) <- classesToFind
+classFrame$ID <- seq(1, nrow(bmiD), 1)
 
 # loop through drugs to find all combinations containing
 for (c in seq(1, length(classesToFind), 1)) {
   print(c)
   class = classesToFind[c]
-  vectorCombinations_withClass <- lookupD$vectorNumbers[grep("SU_", lookupD[, c])]
+  vectorCombinations_withClass <- lookupD$vectorNumbers[grep(class, lookupD[, 1])]
   
   # loop through all IDs drug combinations to see if any of the matching combinations present
   for (d in seq(1, nrow(drugD), 1)) {
@@ -47,3 +48,17 @@ for (c in seq(1, length(classesToFind), 1)) {
   }
   
 }
+
+prescribedN <- colSums(classFrame)
+minClass = min(prescribedN)
+
+# generate sets of all ID indexes by prescribed class
+# classFrame <- data.table(classFrame)
+sampleFrame <- as.data.frame(matrix(0, nrow = minClass, ncol = length(classesToFind)))
+colnames(sampleFrame) <- classesToFind
+
+for (s in seq(1, ncol(sampleFrame), 1)) {
+  sampleFrame[, s] <- sample(classFrame$ID[classFrame[, s] == 1], minClass)
+}
+
+
